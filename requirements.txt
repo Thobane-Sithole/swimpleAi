@@ -1,0 +1,8 @@
+anthropic>=1.0.0
+neo4j>=5.0.0
+
+# Voice Oracle
+SpeechRecognition>=3.10.0
+pyttsx3>=2.90
+sounddevice>=0.4.6
+numpy>=1.24.0

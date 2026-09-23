@@ -1,5 +1,5 @@
 """
-Why Oracle — asks "why" about your codebase.
+Why Swimple — asks "why" about your codebase.
 
 Backed by a Neo4j knowledge graph when available; falls back to flat-file mode
 so the agent keeps working even if Neo4j isn't running.

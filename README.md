@@ -111,7 +111,7 @@ Pick an agent from the menu:
 
 The Swimple web interface (dark theme, agent switcher, voice mic button, auto-speak responses) runs as a standalone HTML file — no server required.
 
-Open `swimple_ui.html` in Chrome or Edge, or deploy it to any static host.
+Open `index.html` in Chrome or Edge, or deploy it to any static host (Vercel, Netlify, GitHub Pages).
 
 ---
 

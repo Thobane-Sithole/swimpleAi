@@ -917,38 +917,77 @@ function setMainState(s){
   if(phStatus){phStatus.className='ph-status';phStatus.textContent=label;if(s==='listening')phStatus.classList.add('listening');else if(s==='thinking'||s==='speaking')phStatus.classList.add(s);}
 }
 
-/* ══ TTS — voice picker (most human first) ══ */
+/* ══ TTS — Groq Orpheus with browser fallback ══ */
+let currentAudio=null;
+const GROQ_VOICE='autumn';
+
+function stopSpeaking(){
+  if(currentAudio){currentAudio.pause();currentAudio=null;}
+  if(synth)synth.cancel();
+  setMainState('idle');
+  messages.querySelectorAll('.m-av.speaking').forEach(a=>a.classList.remove('speaking'));
+}
+
+function markSpeaking(){
+  setMainState('speaking');
+  messages.querySelectorAll('.msg-row.ai .m-av').forEach((a,i,arr)=>{if(i===arr.length-1)a.classList.add('speaking');});
+}
+
 function bestVoice(){
   const voices=synth.getVoices();
-  // Priority list: Microsoft Neural (Edge) > Google Natural > Google en-US > any en-US online > any en
   const ranked=[
     v=>/microsoft.*aria|aria.*neural/i.test(v.name),
     v=>/microsoft.*jenny|jenny.*neural/i.test(v.name),
     v=>/microsoft.*guy|guy.*neural/i.test(v.name),
-    v=>/microsoft.*steffan|steffan.*neural/i.test(v.name),
     v=>/microsoft.*natural/i.test(v.name)&&v.lang.startsWith('en'),
     v=>/microsoft/i.test(v.name)&&!v.localService&&v.lang.startsWith('en'),
     v=>/google/i.test(v.name)&&v.lang==='en-US',
     v=>!v.localService&&v.lang==='en-US',
-    v=>!v.localService&&v.lang.startsWith('en'),
     v=>v.lang==='en-US',
     v=>v.lang.startsWith('en'),
   ];
-  for(const test of ranked){const v=voices.find(test);if(v)return v;}
+  for(const t of ranked){const v=voices.find(t);if(v)return v;}
   return null;
 }
-function speakText(raw){
-  if(!synth||!voiceOn)return;
+
+function speakFallback(raw){
+  if(!synth)return;
   const clean=raw.replace(/\*\*(.+?)\*\*/g,'$1').replace(/`([^`]+)`/g,'$1').replace(/[→•📎◆◈🚀🐛👋🙌]/g,'').replace(/<br>/g,' ').replace(/\s{2,}/g,' ').trim();
-  synth.cancel();
   const utt=new SpeechSynthesisUtterance(clean.slice(0,600));
   utt.lang='en-US';utt.rate=0.97;utt.pitch=1;utt.volume=1;
   const v=bestVoice();if(v)utt.voice=v;
-  utt.onstart=()=>{setMainState('speaking');messages.querySelectorAll('.msg-row.ai .m-av').forEach((a,i,arr)=>{if(i===arr.length-1)a.classList.add('speaking');});};
+  utt.onstart=markSpeaking;
   utt.onend=utt.onerror=()=>{setMainState('idle');messages.querySelectorAll('.m-av.speaking').forEach(a=>a.classList.remove('speaking'));};
   synth.speak(utt);
 }
-voiceBtn.addEventListener('click',()=>{voiceOn=!voiceOn;voiceBtn.classList.toggle('on',voiceOn);if(!voiceOn&&synth)synth.cancel();const sb=$('vcSpkBtn');if(sb)sb.classList.toggle('on',voiceOn);});
+
+async function speakText(raw){
+  if(!voiceOn)return;
+  stopSpeaking();
+  const clean=raw.replace(/\*\*(.+?)\*\*/g,'$1').replace(/`([^`]+)`/g,'$1').replace(/[→•📎◆◈🚀🐛👋🙌]/g,'').replace(/<br>/g,' ').replace(/\s{2,}/g,' ').trim();
+  // Only attempt Groq when served over HTTP (not file://)
+  if(location.protocol==='http:'||location.protocol==='https:'){
+    try{
+      markSpeaking();
+      const res=await fetch('/api/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:clean,voice:GROQ_VOICE})});
+      if(!res.ok)throw new Error(`HTTP ${res.status}`);
+      const blob=await res.blob();
+      const url=URL.createObjectURL(blob);
+      const audio=new Audio(url);
+      currentAudio=audio;
+      audio.onended=()=>{URL.revokeObjectURL(url);currentAudio=null;setMainState('idle');messages.querySelectorAll('.m-av.speaking').forEach(a=>a.classList.remove('speaking'));};
+      audio.onerror=()=>{URL.revokeObjectURL(url);currentAudio=null;setMainState('idle');};
+      await audio.play();
+      return;
+    }catch(e){
+      console.warn('Groq TTS unavailable, using browser voice:',e.message);
+      stopSpeaking();
+    }
+  }
+  speakFallback(raw);
+}
+
+voiceBtn.addEventListener('click',()=>{voiceOn=!voiceOn;voiceBtn.classList.toggle('on',voiceOn);if(!voiceOn)stopSpeaking();const sb=$('vcSpkBtn');if(sb)sb.classList.toggle('on',voiceOn);});
 
 /* ══ FILE UPLOAD ══ */
 function showDocUI(n,wc){dsName.textContent=n;dsWords.textContent=`· ${wc.toLocaleString()} words`;docStrip.classList.add('show');dbName.textContent=n;docBadge.classList.add('show');uploadBtn.classList.add('has-doc');}
@@ -1068,7 +1107,7 @@ function vcDraw(){vcRaf=requestAnimationFrame(vcDraw);vctx.clearRect(0,0,VC_SZ,V
 function vcTick(){vcSecs++;const m=String(Math.floor(vcSecs/60)).padStart(2,'0'),s=String(vcSecs%60).padStart(2,'0');vcTimer.textContent=`${m}:${s}`;vcTimer.classList.add('active');}
 function vcLine(role,text){const d=document.createElement('div');d.className=`vtl ${role}`;d.innerHTML=`<span class="vw">${role==='user'?'You':'Swimple'}:</span><span>${esc(text)}</span>`;vcTr.appendChild(d);vcTr.scrollTop=vcTr.scrollHeight;}
 async function vcInitAudio(){if(vcACtx)return true;try{vcStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});vcACtx=new AudioContext();vcAn=vcACtx.createAnalyser();vcAn.fftSize=128;vcAn.smoothingTimeConstant=.78;vcACtx.createMediaStreamSource(vcStream).connect(vcAn);return true;}catch(e){vcLine('ai','⚠ Mic access denied.');return false;}}
-function vcBuildRec(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return null;const r=new SR();r.continuous=false;r.interimResults=true;r.lang='en-US';let interim='';r.onresult=e=>{let f='',i='';for(let j=e.resultIndex;j<e.results.length;j++){e.results[j].isFinal?(f+=e.results[j][0].transcript):(i+=e.results[j][0].transcript);}interim=(f||i).trim();};r.onend=async()=>{const q=interim;interim='';if(!q||!vcOpen){if(vcOpen)setVcSt('listening');return;}vcLine('user',q);setVcSt('processing');await sleep(400+Math.random()*350);const resp=pick(q);const clean=resp.replace(/\*\*(.+?)\*\*/g,'$1').replace(/`([^`]+)`/g,'$1').replace(/[📎◆◈🚀🐛👋🙌]/g,'').replace(/\n/g,' ').trim().slice(0,200)+(resp.length>200?'…':'');vcLine('ai',clean);setVcSt('speaking');sendMsg(q);if(voiceOn){synth.cancel();const utt=new SpeechSynthesisUtterance(resp.replace(/\*\*(.+?)\*\*/g,'$1').replace(/`([^`]+)`/g,'$1').replace(/[📎◆◈🚀🐛👋🙌]/g,'').replace(/\s{2,}/g,' ').trim().slice(0,500));utt.lang='en-US';utt.rate=0.97;utt.pitch=1;const bv=bestVoice();if(bv)utt.voice=bv;utt.onend=utt.onerror=()=>{if(vcOpen){setVcSt('listening');vcStartListen();}};synth.speak(utt);}else{await sleep(1500);if(vcOpen){setVcSt('listening');vcStartListen();}}};r.onerror=e=>{if(e.error!=='no-speech'&&vcOpen)vcLine('ai',`⚠ ${e.error}`);if(vcOpen)setVcSt('listening');};return r;}
+function vcBuildRec(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return null;const r=new SR();r.continuous=false;r.interimResults=true;r.lang='en-US';let interim='';r.onresult=e=>{let f='',i='';for(let j=e.resultIndex;j<e.results.length;j++){e.results[j].isFinal?(f+=e.results[j][0].transcript):(i+=e.results[j][0].transcript);}interim=(f||i).trim();};r.onend=async()=>{const q=interim;interim='';if(!q||!vcOpen){if(vcOpen)setVcSt('listening');return;}vcLine('user',q);setVcSt('processing');await sleep(400+Math.random()*350);const resp=pick(q);const clean=resp.replace(/\*\*(.+?)\*\*/g,'$1').replace(/`([^`]+)`/g,'$1').replace(/[📎◆◈🚀🐛👋🙌]/g,'').replace(/\n/g,' ').trim().slice(0,200)+(resp.length>200?'…':'');vcLine('ai',clean);setVcSt('speaking');sendMsg(q);if(voiceOn){stopSpeaking();const _a=await speakText(resp);setTimeout(()=>{if(vcOpen){setVcSt('listening');vcStartListen();}},2200);}else{await sleep(1500);if(vcOpen){setVcSt('listening');vcStartListen();}}};r.onerror=e=>{if(e.error!=='no-speech'&&vcOpen)vcLine('ai',`⚠ ${e.error}`);if(vcOpen)setVcSt('listening');};return r;}
 function vcStartListen(){if(!vcOpen||vcMuted)return;if(!vcRec)vcRec=vcBuildRec();if(!vcRec){vcLine('ai','⚠ Needs Chrome or Edge.');return;}try{vcRec.start();}catch(_){}}
 async function openCall(){if(vcOpen)return;vcOpen=true;vcBd.classList.add('open');vcPop.classList.add('open');$('voiceFab').classList.add('active');vcTr.innerHTML='';vcLine('ai','Connected. Ask me anything.');vcSecs=0;vcTimer.textContent='00:00';vcTimer.classList.remove('active');vcInt=setInterval(vcTick,1000);setVcSt('listening');vcDraw();const ok=await vcInitAudio();if(!ok){setVcSt('idle');return;}if(!window.SpeechRecognition&&!window.webkitSpeechRecognition){vcLine('ai','⚠ Needs Chrome or Edge.');setVcSt('idle');return;}vcStartListen();}
 function closeCall(){if(!vcOpen)return;vcOpen=false;try{vcRec?.stop();}catch(_){}vcRec=null;synth?.cancel();clearInterval(vcInt);cancelAnimationFrame(vcRaf);vcRaf=null;vcPop.classList.remove('open');vcBd.classList.remove('open');$('voiceFab').classList.remove('active');setVcSt('idle');}

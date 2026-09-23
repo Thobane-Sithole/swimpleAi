@@ -1,7 +1,13 @@
 {
   "framework": null,
   "buildCommand": null,
-  "installCommand": null,
+  "installCommand": "npm install",
   "outputDirectory": ".",
-  "cleanUrls": true
+  "cleanUrls": true,
+  "functions": {
+    "api/*.js": {
+      "memory": 1024,
+      "maxDuration": 30
+    }
+  }
 }

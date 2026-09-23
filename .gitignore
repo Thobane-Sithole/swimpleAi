@@ -15,6 +15,10 @@ build/
 # Neo4j local data
 neo4j_data/
 
+# Node
+node_modules/
+package-lock.json
+
 # Editor / OS
 .vscode/
 .idea/

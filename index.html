@@ -10,13 +10,13 @@
 <style>
 /* ══ ROOT ══ */
 :root {
-  --bg: #08081A;
+  --bg: #1A1B2E;
   --ac: #EDAE49; --ac2: #F47B3C;
-  --ag: rgba(237,174,73,0.12); --ag2: rgba(237,174,73,0.05);
-  --t1: #F0F2FF; --t2: #7070A0; --t3: #3A3A60;
-  --gb: rgba(255,255,255,0.10); --gb2: rgba(255,255,255,0.16);
-  --lg-bg: rgba(10,10,32,0.32);
-  --lg-hi: rgba(255,255,255,0.65);
+  --ag: rgba(237,174,73,0.14); --ag2: rgba(237,174,73,0.06);
+  --t1: #F0F2FF; --t2: #8080B0; --t3: #4A4A70;
+  --gb: rgba(255,255,255,0.12); --gb2: rgba(255,255,255,0.20);
+  --lg-bg: rgba(255,255,255,0.09);
+  --lg-hi: rgba(255,255,255,0.72);
   --fd: 'Orbitron',system-ui,sans-serif;
   --fb: 'Rajdhani',system-ui,sans-serif;
   --fm: 'DM Sans',system-ui,sans-serif;
@@ -28,19 +28,19 @@ button{font-family:var(--fm);cursor:pointer;border:none;background:transparent}
 button:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
 
 /* ══ APPLE LIQUID GLASS SYSTEM ══ */
-.gc{position:relative;border-radius:var(--r);overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.5),0 0 0 1px var(--gb)}
+.gc{position:relative;border-radius:var(--r);overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.45),0 0 0 1px rgba(255,255,255,0.14)}
 .gf{position:absolute;inset:0;backdrop-filter:blur(24px) saturate(1.5);-webkit-backdrop-filter:blur(24px) saturate(1.5);filter:url(#lensFilter);z-index:1}
 .go{position:absolute;inset:0;background:var(--lg-bg);z-index:2}
 .gs{position:absolute;inset:0;border-radius:inherit;box-shadow:inset 1px 1px 0 var(--lg-hi),inset 0 0 6px rgba(255,255,255,0.03);z-index:3;pointer-events:none}
 .gx{position:relative;z-index:4}
 
 /* ══ BACKGROUND ══ */
-.bg-full{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 110% 70% at 25% 0%,rgba(14,8,38,1) 0%,var(--bg) 100%)}
+.bg-full{position:fixed;inset:0;z-index:0;background:linear-gradient(160deg,#22233A 0%,#1A1B2E 45%,#141525 100%)}
 .bg-anim{position:absolute;inset:0;overflow:hidden;pointer-events:none}
 .orb{position:absolute;border-radius:50%;filter:blur(80px);animation:orbF 24s ease-in-out infinite}
-.orb1{width:60vw;height:60vw;background:radial-gradient(circle,rgba(237,174,73,0.12),transparent 70%);top:-20%;left:-10%}
-.orb2{width:50vw;height:60vw;background:radial-gradient(circle,rgba(91,143,255,0.10),transparent 70%);bottom:-20%;right:-5%;animation-delay:-9s}
-.orb3{width:40vw;height:45vw;background:radial-gradient(circle,rgba(38,198,218,0.07),transparent 70%);top:30%;left:38%;animation-delay:-18s}
+.orb1{width:65vw;height:65vw;background:radial-gradient(circle,rgba(237,174,73,0.18),transparent 70%);top:-15%;left:-10%}
+.orb2{width:55vw;height:65vw;background:radial-gradient(circle,rgba(91,143,255,0.16),transparent 70%);bottom:-15%;right:-5%;animation-delay:-9s}
+.orb3{width:45vw;height:50vw;background:radial-gradient(circle,rgba(160,120,255,0.13),transparent 70%);top:25%;left:35%;animation-delay:-18s}
 @keyframes orbF{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(40px,-60px) scale(1.08)}66%{transform:translate(-30px,40px) scale(0.94)}}
 
 /* Three.js canvas — sits above orb so the 3D model shows */
@@ -408,9 +408,17 @@ button:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
 </div>
 
 <!-- ════════════ THREE.JS AVATAR (Module) ════════════ -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
 <script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
-import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const canvas = document.getElementById('threeCanvas');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -420,9 +428,9 @@ renderer.shadowMap.enabled = true;
 renderer.setClearColor(0x000000, 0);
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
-camera.position.set(0, 1.3, 2.2);
-camera.lookAt(0, 0.9, 0);
+const camera = new THREE.PerspectiveCamera(44, 1, 0.1, 100);
+camera.position.set(0, 0.6, 3.8);
+camera.lookAt(0, 0.4, 0);
 
 // Lighting (warm + cool fills)
 const ambient = new THREE.AmbientLight(0xffd4a0, 0.7);
@@ -461,6 +469,49 @@ window.setAvatarState = function(s) {
   currentState = s;
 };
 
+// ── Web Audio lip sync ──
+let audioCtx = null;
+let analyserNode = null;
+let lipSyncBytes = new Uint8Array(64);
+
+window.connectAudioLipSync = function(audioEl) {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    if (!analyserNode) {
+      analyserNode = audioCtx.createAnalyser();
+      analyserNode.fftSize = 128;
+      analyserNode.smoothingTimeConstant = 0.80;
+      lipSyncBytes = new Uint8Array(analyserNode.frequencyBinCount);
+      analyserNode.connect(audioCtx.destination);
+    }
+    audioCtx.createMediaElementSource(audioEl).connect(analyserNode);
+  } catch(e) { /* silent — falls back to sine wave */ }
+};
+
+// ── Gesture system ──
+// Euler offsets applied on top of the captured idle rest pose (no accumulation)
+const GESTURE_DEFS = [
+  // Emphatic nod — head dips forward
+  { Head:[0.20, 0, 0] },
+  // Right-hand explain — arm slightly forward + head turn
+  { RightArm:[-0.28, 0.06, -0.10], RightForeArm:[0.22, -0.12, 0.04], Head:[0.04, -0.10, 0] },
+  // Open arms — both arms widen
+  { LeftArm:[-0.18, -0.04, 0.24], RightArm:[-0.18, 0.04, -0.24], Head:[0.06, 0, 0] },
+  // Head turn — considering / conversational
+  { Head:[0.06, 0.18, -0.04] },
+  // Both hands raise slightly — emphasis
+  { LeftArm:[-0.20, -0.04, 0.16], RightArm:[-0.20, 0.04, -0.16], Head:[0.08, 0, 0] },
+];
+const gestureBones = {};
+let restBoneQuats = null;   // captured once from idle animation frame 0
+let gestureTargets = null;  // pre-computed: restQuat * delta for each gesture/bone
+let activeGestureIdx = -1;
+let gestureBlend = 0;
+let gesturePhase = 'idle'; // 'idle'|'in'|'hold'|'out'
+let gestureHoldEnd = 0;
+let gestureWaitEnd = 0;
+
 // Load GLB
 const loader = new GLTFLoader();
 loader.load('./avatar/swimple_avatar.glb',
@@ -472,10 +523,12 @@ loader.load('./avatar/swimple_avatar.glb',
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z);
-    const scale = 2.4 / maxDim;
+    const scale = 3.2 / maxDim;
     model.scale.setScalar(scale);
-    model.position.sub(center.multiplyScalar(scale));
-    model.position.y += 0.05;
+    // Center model then shift up slightly so feet clear the bottom
+    const scaledCenter = center.clone().multiplyScalar(scale);
+    model.position.sub(scaledCenter);
+    model.position.y += 0.10;
 
     scene.add(model);
 
@@ -492,11 +545,37 @@ loader.load('./avatar/swimple_avatar.glb',
       }
     });
 
+    // Collect bones for gesture system
+    const GESTURE_BONE_NAMES = new Set([
+      'Head','Neck','LeftArm','LeftForeArm','RightArm','RightForeArm',
+    ]);
+    model.traverse(node => {
+      if (GESTURE_BONE_NAMES.has(node.name)) gestureBones[node.name] = node;
+    });
+
     if (gltf.animations?.length) {
       avatarMixer = new THREE.AnimationMixer(model);
       const idle = gltf.animations.find(a => /idle|stand|breath/i.test(a.name)) || gltf.animations[0];
       if (idle) avatarMixer.clipAction(idle).play();
+      // Advance one tick so animation settles to natural standing pose
+      avatarMixer.update(0.016);
     }
+
+    // Capture rest quaternions (standing idle pose) and pre-compute gesture targets
+    restBoneQuats = {};
+    for (const [name, bone] of Object.entries(gestureBones)) {
+      restBoneQuats[name] = bone.quaternion.clone();
+    }
+    gestureTargets = GESTURE_DEFS.map(def => {
+      const targets = {};
+      for (const [name, [rx, ry, rz]] of Object.entries(def)) {
+        const rest = restBoneQuats[name];
+        if (!rest) continue;
+        const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(rx, ry, rz));
+        targets[name] = rest.clone().multiply(q);
+      }
+      return targets;
+    });
 
     avatarLoaded = true;
     document.getElementById('avLoad').style.display = 'none';
@@ -525,23 +604,64 @@ function animate() {
 
   if (avatarMixer) avatarMixer.update(dt);
 
-  // Lip sync animation
+  // ── Audio-reactive lip sync ──
   if (morphMesh && jawMorphIdx >= 0) {
     let target = 0;
     if (currentState === 'speaking') {
-      lipPhase += dt * 8;
-      target = Math.max(0, Math.sin(lipPhase) * 0.5 + Math.sin(lipPhase * 2.3) * 0.25);
+      if (analyserNode) {
+        analyserNode.getByteFrequencyData(lipSyncBytes);
+        // Speech-band bins (roughly 200-1200 Hz at 22050 Hz nyquist, fftSize 128 → 64 bins, ~345 Hz/bin)
+        const avg = (lipSyncBytes[1] + lipSyncBytes[2] + lipSyncBytes[3] + lipSyncBytes[4]) / 4;
+        target = Math.min(1, (avg / 255) * 2.8);
+      } else {
+        lipPhase += dt * 10;
+        target = Math.max(0, Math.sin(lipPhase) * 0.55 + Math.sin(lipPhase * 2.7) * 0.28);
+      }
     } else if (currentState === 'listening') {
-      target = 0.05 + Math.sin(t * 3) * 0.05;
+      target = 0.04 + Math.sin(t * 2.5) * 0.03;
     }
-    const current = morphMesh.morphTargetInfluences[jawMorphIdx] || 0;
-    morphMesh.morphTargetInfluences[jawMorphIdx] = THREE.MathUtils.lerp(current, Math.max(0, Math.min(1, target)), 0.18);
+    const cur = morphMesh.morphTargetInfluences[jawMorphIdx] || 0;
+    morphMesh.morphTargetInfluences[jawMorphIdx] = THREE.MathUtils.lerp(cur, target, 0.30);
   }
 
-  // Subtle camera drift (idle breathing)
+  // ── Gesture state machine ──
+  // Bones are slerped between restBoneQuats (idle) and pre-computed targets (gesture).
+  // No per-frame accumulation — each frame is computed fresh from the captured rest pose.
+  if (restBoneQuats && gestureTargets) {
+    if (currentState === 'speaking') {
+      if (gesturePhase === 'idle' && t >= gestureWaitEnd) {
+        activeGestureIdx = Math.floor(Math.random() * GESTURE_DEFS.length);
+        gesturePhase = 'in';
+        gestureHoldEnd = t + 1.8 + Math.random() * 2.2;
+      }
+      if (gesturePhase === 'in') {
+        gestureBlend = Math.min(1, gestureBlend + dt * 2.5);
+        if (gestureBlend >= 1) gesturePhase = 'hold';
+      }
+      if (gesturePhase === 'hold' && t >= gestureHoldEnd) gesturePhase = 'out';
+      if (gesturePhase === 'out') {
+        gestureBlend = Math.max(0, gestureBlend - dt * 2.0);
+        if (gestureBlend <= 0) { gesturePhase = 'idle'; gestureWaitEnd = t + 0.3 + Math.random() * 0.5; }
+      }
+    } else {
+      gestureBlend = Math.max(0, gestureBlend - dt * 3.5);
+      if (gestureBlend <= 0) { gesturePhase = 'idle'; gestureWaitEnd = 0; }
+    }
+
+    // Apply to bones: slerp from rest → gesture target based on blend
+    const targets = (activeGestureIdx >= 0) ? gestureTargets[activeGestureIdx] : {};
+    for (const [name, bone] of Object.entries(gestureBones)) {
+      const rest = restBoneQuats[name];
+      if (!rest) continue;
+      const target = targets[name] ?? rest;
+      bone.quaternion.copy(rest).slerp(target, gestureBlend);
+    }
+  }
+
+  // ── Subtle camera drift ──
   breathePhase += dt * 0.5;
   const breathe = Math.sin(breathePhase) * 0.004;
-  camera.position.y = 1.3 + breathe;
+  camera.position.y = 0.6 + breathe;
 
   renderer.render(scene, camera);
 }
@@ -994,6 +1114,7 @@ async function speakText(raw){
       setVoiceTag('ORPHEUS','green');
       audio.onended=()=>{URL.revokeObjectURL(url);currentAudio=null;setMainState('idle');messages.querySelectorAll('.m-av.speaking').forEach(a=>a.classList.remove('speaking'));};
       audio.onerror=()=>{URL.revokeObjectURL(url);currentAudio=null;setMainState('idle');};
+      if(window.connectAudioLipSync)window.connectAudioLipSync(audio);
       await audio.play();
       return;
     }catch(e){

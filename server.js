@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 import Groq from 'groq-sdk';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 
 // Read GROQ_API_KEY from .env if not already in environment
 try {

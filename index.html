@@ -6,6 +6,7 @@
 <title>Swimple</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Rajdhani:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 <style>
 /* ══ ROOT ══ */
 :root {
@@ -42,11 +43,11 @@ button:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
 .orb3{width:40vw;height:45vw;background:radial-gradient(circle,rgba(38,198,218,0.07),transparent 70%);top:30%;left:38%;animation-delay:-18s}
 @keyframes orbF{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(40px,-60px) scale(1.08)}66%{transform:translate(-30px,40px) scale(0.94)}}
 
-/* Three.js canvas */
-#threeCanvas{position:absolute;inset:0;width:100%;height:100%}
+/* Three.js canvas — sits above orb so the 3D model shows */
+#threeCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:2}
 
-/* Orb canvas fallback */
-#orbCanvas{position:absolute;top:50%;left:40%;transform:translate(-50%,-50%);pointer-events:none}
+/* Orb canvas fallback — behind Three.js, visible when GLB not loaded */
+#orbCanvas{position:absolute;top:50%;left:40%;transform:translate(-50%,-50%);pointer-events:none;z-index:1}
 
 /* Avatar loading */
 #avLoad{position:absolute;top:50%;left:40%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--t2);font-size:13px}
@@ -278,7 +279,7 @@ button:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
     <div class="gf"></div><div class="go"></div><div class="gs"></div>
     <div class="gx hdr-c">
       <div class="logo">
-        <div class="logo-gem">✦</div>
+        <div class="logo-gem"><i class="bi bi-stars" style="font-size:13px"></i></div>
         <span class="logo-name">Swimple</span>
         <div class="logo-sep"></div>
         <span class="logo-suite">AI Suite</span>
@@ -288,17 +289,17 @@ button:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
       </div>
       <div class="hdr-r">
         <button class="hdr-new" id="newBtn">
-          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <i class="bi bi-plus-lg"></i>
           <span>New chat</span>
         </button>
         <button class="gbtn on" id="voiceBtn" title="AI voice">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 9h4l5-5v16l-5-5H3V9Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M18 6a6 6 0 0 1 0 12" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <i class="bi bi-volume-up-fill" style="font-size:15px"></i>
         </button>
         <button class="gbtn" id="themeBtn" title="Toggle theme">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="1.7"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <i class="bi bi-sun-fill" style="font-size:14px"></i>
         </button>
         <button class="gbtn" id="chatToggleBtn" title="Toggle chat">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+          <i class="bi bi-chat-dots-fill" style="font-size:14px"></i>
         </button>
       </div>
     </div>
@@ -321,19 +322,19 @@ button:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
           <button class="ap active" data-a="oracle" id="btnOracle">◆ Oracle</button>
           <button class="ap" data-a="ticket" id="btnTicket">◈ Tickets</button>
         </div>
-        <button class="pcl" id="panelCloseBtn" title="Close">✕</button>
+        <button class="pcl" id="panelCloseBtn" title="Close"><i class="bi bi-x-lg"></i></button>
       </div>
 
       <!-- Document badge -->
       <div class="doc-badge" id="docBadge">
-        <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M4 2h6l4 4v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.4"/><path d="M10 2v4h4" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+        <i class="bi bi-file-earmark-text-fill" style="font-size:12px;color:var(--ac)"></i>
         <span class="db-name" id="dbName"></span>
-        <button class="db-clr" id="dbClr">×</button>
+        <button class="db-clr" id="dbClr"><i class="bi bi-x-circle-fill"></i></button>
       </div>
 
       <!-- Upload -->
       <label class="upload-area" for="fileInput">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 2h6l4 4v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.4"/><path d="M10 2v4h4" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M6 10l2-2 2 2M8 8v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <i class="bi bi-file-earmark-arrow-up-fill" style="font-size:15px;color:var(--ac)"></i>
         Upload a document
       </label>
 
@@ -343,7 +344,7 @@ button:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
       <!-- Input -->
       <div class="input-area">
         <div class="doc-strip" id="docStrip">
-          <svg class="ds-icon" width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M4 2h6l4 4v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.4"/></svg>
+          <i class="ds-icon bi bi-file-earmark-text" style="font-size:13px;color:var(--ac)"></i>
           <span class="ds-name" id="dsName"></span>
           <span class="ds-words" id="dsWords"></span>
           <button class="ds-clr" id="dsClr">Clear</button>
@@ -351,13 +352,13 @@ button:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
         <div class="input-wrap">
           <textarea id="input" placeholder="Ask Swimple anything…" rows="1"></textarea>
           <button class="ibtn" id="uploadBtn" title="Upload document">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 2h6l4 4v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.4"/><path d="M10 2v4h4" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M6 10l2-2 2 2M8 8v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <i class="bi bi-paperclip" style="font-size:16px"></i>
           </button>
           <button class="ibtn" id="micBtn" title="Voice call">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="5.5" y="1" width="5" height="8" rx="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M3 8a5 5 0 0 0 10 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M8 13v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <i class="bi bi-mic-fill" style="font-size:15px"></i>
           </button>
           <button class="send-btn" id="sendBtn" disabled>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 13V3M3.5 7.5L8 3l4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <i class="bi bi-send-fill" style="font-size:14px"></i>
           </button>
         </div>
         <div class="input-hint">Enter · 📎 upload doc · ✦ voice call</div>
@@ -369,7 +370,7 @@ button:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
 
 <!-- ════════════ VOICE FAB ════════════ -->
 <button class="voice-fab" id="voiceFab">
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="9" y="2" width="6" height="12" rx="3" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M12 18v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+  <i class="bi bi-mic-fill" style="font-size:22px"></i>
 </button>
 
 <!-- ════════════ VOICE CALL POPUP ════════════ -->
@@ -377,7 +378,7 @@ button:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
 <div class="vc-pop" id="vcPop">
   <div class="vc-hd">
     <div class="vc-logo-t">
-      <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1L10.5 6H15L11 9.5L12.5 15L8 12L3.5 15L5 9.5L1 6H5.5L8 1Z"/></svg>
+      <i class="bi bi-stars"></i>
       SWIMPLE
     </div>
     <span class="vc-tag">VOICE CALL</span>
@@ -392,15 +393,15 @@ button:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
   <div class="vc-tr" id="vcTr"><div class="vtl ai"><span class="vw">Swimple:</span><span>Ask me anything — I'm listening.</span></div></div>
   <div class="vc-ctrls">
     <div class="vc-cbtn">
-      <button id="vcMuteBtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="9" y="2" width="6" height="11" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M5 10a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 17v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      <button id="vcMuteBtn"><i class="bi bi-mic-mute-fill" style="font-size:20px"></i></button>
       <label>Mute</label>
     </div>
     <div class="ecw">
-      <button class="ec-btn" id="ecBtn"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 0 0-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.12-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99Z" transform="rotate(135 12 12)"/></svg></button>
+      <button class="ec-btn" id="ecBtn"><i class="bi bi-telephone-x-fill" style="font-size:24px"></i></button>
       <label>End Call</label>
     </div>
     <div class="vc-cbtn">
-      <button id="vcSpkBtn" class="on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 9h4l5-5v16l-5-5H3V9Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M16.5 7.5a6 6 0 0 1 0 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      <button id="vcSpkBtn" class="on"><i class="bi bi-volume-up-fill" style="font-size:20px"></i></button>
       <label>Speaker</label>
     </div>
   </div>
@@ -419,9 +420,9 @@ renderer.shadowMap.enabled = true;
 renderer.setClearColor(0x000000, 0);
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 100);
-camera.position.set(0, 1.55, 3.2);
-camera.lookAt(0, 1.1, 0);
+const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+camera.position.set(0, 1.3, 2.2);
+camera.lookAt(0, 0.9, 0);
 
 // Lighting (warm + cool fills)
 const ambient = new THREE.AmbientLight(0xffd4a0, 0.7);
@@ -471,7 +472,7 @@ loader.load('./avatar/swimple_avatar.glb',
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z);
-    const scale = 1.8 / maxDim;
+    const scale = 2.4 / maxDim;
     model.scale.setScalar(scale);
     model.position.sub(center.multiplyScalar(scale));
     model.position.y += 0.05;
@@ -540,7 +541,7 @@ function animate() {
   // Subtle camera drift (idle breathing)
   breathePhase += dt * 0.5;
   const breathe = Math.sin(breathePhase) * 0.004;
-  camera.position.y = 1.55 + breathe;
+  camera.position.y = 1.3 + breathe;
 
   renderer.render(scene, camera);
 }
@@ -1046,8 +1047,7 @@ function sysMsg(md){const id=uid();msgs.push({role:'system',content:md,id});rend
 function renderMsg(m){
   const isU=m.role==='user',isSys=m.role==='system';
   const div=document.createElement('div');div.className=`msg-row ${m.role}`;div.dataset.id=m.id;
-  const av=isU?`<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="4" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M1 11c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`:
-    `<svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1L10.5 6H15L11 9.5L12.5 15L8 12L3.5 15L5 9.5L1 6H5.5L8 1Z"/></svg>`;
+  const av=isU?`<i class="bi bi-person-fill" style="font-size:13px"></i>`:`<i class="bi bi-stars" style="font-size:13px"></i>`;
   div.innerHTML=`<div class="m-av">${av}</div><div class="m-body"><div class="m-bubble" data-bubble>${m.thinking?'<div class="thinking"><span></span><span></span><span></span></div>':(isU?esc(m.content):fmt(m.content))}</div></div>`;
   messages.appendChild(div);scrollB();
 }

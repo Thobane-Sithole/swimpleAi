@@ -55,6 +55,19 @@ button:focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
 .hist-item { padding: 7px 10px; border-radius: var(--rs); font-size: 13px; color: var(--t2); cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: all .12s; }
 .hist-item:hover, .hist-item.active { background: var(--surf-2); color: var(--t1); }
 
+/* Doc pill in sidebar */
+.doc-pill {
+  display: none; align-items: center; gap: 7px;
+  padding: 7px 10px; border-radius: var(--rs);
+  background: var(--ag); border: 1px solid color-mix(in srgb, var(--ac) 20%, transparent);
+  font-size: 12px; color: var(--ac); margin-top: 4px;
+}
+.doc-pill.show { display: flex; }
+.doc-pill svg { flex-shrink: 0; }
+.doc-pill-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; font-weight: 500; }
+.doc-pill-remove { background: transparent; border: none; color: var(--t3); padding: 0 2px; font-size: 14px; line-height: 1; transition: color .12s; }
+.doc-pill-remove:hover { color: var(--t1); }
+
 /* Main */
 .main { flex: 1; display: flex; flex-direction: column; min-width: 0; background: var(--bg); position: relative; }
 .main::before { content: ''; position: absolute; inset: 0; pointer-events: none; background-image: radial-gradient(circle, var(--border) 1px, transparent 1px); background-size: 28px 28px; opacity: .5; }
@@ -83,13 +96,23 @@ button:focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
 .chip { padding: 7px 14px; border-radius: 100px; border: 1px solid var(--border-2); background: var(--surf); color: var(--t2); font-size: 13px; cursor: pointer; transition: all .15s; white-space: nowrap; }
 .chip:hover { border-color: var(--ac); color: var(--t1); background: var(--ag); }
 
+/* Upload nudge on empty state */
+.upload-nudge {
+  display: flex; align-items: center; gap: 9px;
+  padding: 10px 16px; border-radius: 12px;
+  background: rgba(237,174,73,.06); border: 1px dashed rgba(237,174,73,.25);
+  font-size: 13px; color: var(--t2); cursor: pointer; transition: all .15s;
+  max-width: 360px;
+}
+.upload-nudge:hover { background: rgba(237,174,73,.10); border-color: rgba(237,174,73,.45); color: var(--t1); }
+.upload-nudge svg { color: var(--ac); flex-shrink: 0; }
+
 .msg-row { display: flex; padding: 5px 24px; gap: 12px; animation: fadeUp .2s ease; }
 @keyframes fadeUp { from { opacity:0; transform: translateY(5px); } to { opacity:1; transform: none; } }
 .msg-row.user { flex-direction: row-reverse; }
 .m-avatar { width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; margin-top: 3px; position: relative; }
 .msg-row.ai   .m-avatar { background: linear-gradient(135deg, var(--ac), var(--ac-2)); color: #000; transition: background .3s; }
 .msg-row.user .m-avatar { background: var(--surf-3); color: var(--t2); }
-
 .m-avatar.speaking::after { content: ''; position: absolute; inset: -5px; border-radius: 11px; border: 1.5px solid var(--ac); animation: avatarRing 1s ease-out infinite; }
 @keyframes avatarRing { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(1.5); opacity: 0; } }
 
@@ -121,6 +144,10 @@ button:focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
 .input-wrap textarea { flex: 1; background: transparent; border: none; outline: none; color: var(--t1); font-family: var(--fb); font-size: 14px; line-height: 1.5; resize: none; max-height: 150px; overflow-y: auto; }
 .input-wrap textarea::placeholder { color: var(--t3); }
 
+.upload-btn { width: 34px; height: 34px; border-radius: 9px; border: none; background: transparent; color: var(--t2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .15s; position: relative; }
+.upload-btn:hover { background: var(--surf-2); color: var(--t1); }
+.upload-btn.has-doc { color: var(--ac); background: var(--ag); }
+
 .mic-btn { width: 34px; height: 34px; border-radius: 9px; border: none; background: transparent; color: var(--t2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .15s; position: relative; }
 .mic-btn:hover { background: var(--surf-2); color: var(--t1); }
 
@@ -129,7 +156,20 @@ button:focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
 .send-btn:disabled { opacity: .3; cursor: not-allowed; transform: none; }
 .input-hint { font-size: 11.5px; color: var(--t3); margin-top: 6px; text-align: center; }
 
-/* Sidebar overlay (mobile) */
+/* Doc strip above input */
+.doc-strip {
+  display: none; align-items: center; gap: 8px;
+  padding: 7px 2px 9px;
+  font-size: 12px; color: var(--t2);
+}
+.doc-strip.show { display: flex; }
+.doc-strip-icon { color: var(--ac); }
+.doc-strip-name { font-weight: 600; color: var(--t1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px; }
+.doc-strip-words { color: var(--t3); }
+.doc-strip-clear { margin-left: auto; background: transparent; border: none; color: var(--t3); font-size: 12px; padding: 2px 6px; border-radius: 5px; transition: all .12s; }
+.doc-strip-clear:hover { background: var(--surf-2); color: var(--t1); }
+
+/* Sidebar overlay */
 .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 9; backdrop-filter: blur(3px); }
 
 /* Mobile */
@@ -139,6 +179,7 @@ button:focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
   .overlay.show { display: block; }
   .menu-btn { display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: var(--rs); border: 1px solid var(--border-2); background: transparent; color: var(--t2); }
   .msg-row { padding: 5px 14px; }
+  .voice-fab { bottom: 100px; }
 }
 
 /* Light theme */
@@ -150,312 +191,130 @@ button:focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
 /* ═══════════════════════════════════════════════
    VOICE CALL POPUP
 ═══════════════════════════════════════════════ */
+.vc-backdrop { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0); backdrop-filter: blur(0px); transition: background .35s, backdrop-filter .35s; pointer-events: none; }
+.vc-backdrop.open { background: rgba(3,3,8,0.72); backdrop-filter: blur(10px); pointer-events: all; }
 
-/* Backdrop — blurs and dims the Swimple UI */
-.vc-backdrop {
-  position: fixed; inset: 0; z-index: 200;
-  background: rgba(0,0,0,0); backdrop-filter: blur(0px);
-  transition: background .35s, backdrop-filter .35s;
-  pointer-events: none;
-}
-.vc-backdrop.open {
-  background: rgba(3,3,8,0.72);
-  backdrop-filter: blur(10px);
-  pointer-events: all;
-}
-
-/* Phone call card */
-.vc-popup {
-  position: fixed; top: 50%; left: 50%; z-index: 201;
-  transform: translate(-50%, -50%) scale(0.88);
-  opacity: 0; pointer-events: none;
-  transition: transform .45s cubic-bezier(.16,1,.3,1), opacity .3s;
-
-  width: 360px; max-width: calc(100vw - 32px);
-  background: #050509;
-  border: 1px solid rgba(237,174,73,0.22);
-  border-radius: 28px;
-  box-shadow:
-    0 0 0 1px rgba(0,0,0,0.8),
-    0 32px 80px rgba(0,0,0,0.75),
-    0 0 60px rgba(237,174,73,0.05);
-  display: flex; flex-direction: column; align-items: center;
-  padding: 24px 28px 28px; gap: 14px;
-}
-.vc-popup.open {
-  transform: translate(-50%, -50%) scale(1);
-  opacity: 1; pointer-events: all;
-}
-
-/* Call header — contact info */
-.vc-header {
-  width: 100%; display: flex; align-items: center; justify-content: space-between;
-}
-.vc-logo {
-  display: flex; align-items: center; gap: 8px;
-  font-family: var(--fd); font-weight: 800; font-size: 13px;
-  letter-spacing: .04em; color: var(--or);
-}
+.vc-popup { position: fixed; top: 50%; left: 50%; z-index: 201; transform: translate(-50%, -50%) scale(0.88); opacity: 0; pointer-events: none; transition: transform .45s cubic-bezier(.16,1,.3,1), opacity .3s; width: 360px; max-width: calc(100vw - 32px); background: #050509; border: 1px solid rgba(237,174,73,0.22); border-radius: 28px; box-shadow: 0 0 0 1px rgba(0,0,0,0.8), 0 32px 80px rgba(0,0,0,0.75), 0 0 60px rgba(237,174,73,0.05); display: flex; flex-direction: column; align-items: center; padding: 24px 28px 28px; gap: 14px; }
+.vc-popup.open { transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: all; }
+.vc-header { width: 100%; display: flex; align-items: center; justify-content: space-between; }
+.vc-logo { display: flex; align-items: center; gap: 8px; font-family: var(--fd); font-weight: 800; font-size: 13px; letter-spacing: .04em; color: var(--or); }
 .vc-logo svg { width: 14px; height: 14px; }
-.vc-end-tag {
-  font-size: 10px; letter-spacing: .14em; color: var(--t3);
-  font-weight: 600;
-}
-
-/* Contact */
-.vc-contact {
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
-  margin-top: -4px;
-}
-.vc-name {
-  font-family: var(--fd); font-weight: 700; font-size: 22px;
-  letter-spacing: -.01em; color: var(--t1);
-}
-.vc-mode {
-  font-size: 11px; letter-spacing: .18em; color: var(--t2); font-weight: 600;
-}
-
-/* Orb canvas area */
-.vc-canvas-wrap {
-  position: relative; width: 190px; height: 190px;
-  flex-shrink: 0;
-}
+.vc-end-tag { font-size: 10px; letter-spacing: .14em; color: var(--t3); font-weight: 600; }
+.vc-contact { display: flex; flex-direction: column; align-items: center; gap: 3px; margin-top: -4px; }
+.vc-name { font-family: var(--fd); font-weight: 700; font-size: 22px; letter-spacing: -.01em; color: var(--t1); }
+.vc-mode { font-size: 11px; letter-spacing: .18em; color: var(--t2); font-weight: 600; }
+.vc-canvas-wrap { position: relative; width: 190px; height: 190px; flex-shrink: 0; }
 .vc-canvas-wrap canvas { position: absolute; top:0; left:0; width:100%; height:100%; }
-
-/* Timer */
-.vc-timer {
-  font-family: 'Consolas', 'Monaco', monospace;
-  font-size: 30px; letter-spacing: .1em; color: var(--t1);
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-}
+.vc-timer { font-family: 'Consolas', 'Monaco', monospace; font-size: 30px; letter-spacing: .1em; color: var(--t1); font-variant-numeric: tabular-nums; line-height: 1; }
 .vc-timer.active { color: var(--or); }
-
-/* State label */
-.vc-state {
-  font-size: 11px; letter-spacing: .2em; color: var(--t2);
-  min-height: 16px; text-align: center;
-  transition: color .3s;
-}
+.vc-state { font-size: 11px; letter-spacing: .2em; color: var(--t2); min-height: 16px; text-align: center; transition: color .3s; }
 .vc-state.listening  { color: #4ADE80; }
 .vc-state.processing { color: var(--or); }
 .vc-state.speaking   { color: var(--or); }
-
-/* Transcript bubble inside call */
-.vc-transcript {
-  width: 100%; min-height: 44px; max-height: 88px;
-  background: rgba(255,255,255,.04);
-  border: 1px solid rgba(255,255,255,.07);
-  border-radius: 14px; padding: 10px 14px;
-  overflow-y: auto; overflow-x: hidden;
-  font-size: 13px; color: var(--t2); line-height: 1.55; text-align: center;
-}
+.vc-transcript { width: 100%; min-height: 44px; max-height: 88px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); border-radius: 14px; padding: 10px 14px; overflow-y: auto; overflow-x: hidden; font-size: 13px; color: var(--t2); line-height: 1.55; text-align: center; }
 .vc-transcript::-webkit-scrollbar { width: 2px; }
 .vc-transcript::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 1px; }
 .vc-tline { margin-bottom: 3px; }
 .vc-tline:last-child { margin-bottom: 0; }
 .vc-tline .vc-who { font-weight: 600; margin-right: 5px; }
-.vc-tline.user .vc-who  { color: var(--t2); }
-.vc-tline.ai   .vc-who  { color: var(--or); }
+.vc-tline.user .vc-who { color: var(--t2); }
+.vc-tline.ai   .vc-who { color: var(--or); }
 .vc-tline span { color: var(--t1); }
-
-/* Call controls row */
-.vc-controls {
-  display: flex; align-items: center; justify-content: center;
-  gap: 32px; margin-top: 4px;
-}
-
-/* Mute / speaker control buttons */
-.vc-ctrl-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 7px;
-}
-.vc-ctrl-btn button {
-  width: 54px; height: 54px; border-radius: 50%;
-  background: rgba(255,255,255,.07);
-  border: 1px solid rgba(255,255,255,.10);
-  color: var(--t1);
-  display: flex; align-items: center; justify-content: center;
-  transition: all .18s;
-}
+.vc-controls { display: flex; align-items: center; justify-content: center; gap: 32px; margin-top: 4px; }
+.vc-ctrl-btn { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+.vc-ctrl-btn button { width: 54px; height: 54px; border-radius: 50%; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.10); color: var(--t1); display: flex; align-items: center; justify-content: center; transition: all .18s; }
 .vc-ctrl-btn button:hover { background: rgba(255,255,255,.13); }
 .vc-ctrl-btn button.on { background: rgba(237,174,73,.14); color: var(--or); border-color: rgba(237,174,73,.3); }
-.vc-ctrl-btn label {
-  font-size: 10px; letter-spacing: .1em; color: var(--t3); font-weight: 500;
-  pointer-events: none;
-}
-
-/* End call — red phone icon */
+.vc-ctrl-btn label { font-size: 10px; letter-spacing: .1em; color: var(--t3); font-weight: 500; pointer-events: none; }
 .end-call-wrap { display: flex; flex-direction: column; align-items: center; gap: 7px; }
-.end-call-btn {
-  width: 68px; height: 68px; border-radius: 50%;
-  background: #E53935; border: none;
-  color: #fff; display: flex; align-items: center; justify-content: center;
-  transition: all .2s;
-  box-shadow: 0 6px 24px rgba(229,57,53,0.45);
-}
-.end-call-btn:hover { background: #EF5350; transform: scale(1.08); box-shadow: 0 8px 30px rgba(229,57,53,0.6); }
-.end-call-wrap label {
-  font-size: 10px; letter-spacing: .1em; color: var(--t3); font-weight: 500;
-  pointer-events: none;
-}
+.end-call-btn { width: 68px; height: 68px; border-radius: 50%; background: #E53935; border: none; color: #fff; display: flex; align-items: center; justify-content: center; transition: all .2s; box-shadow: 0 6px 24px rgba(229,57,53,0.45); }
+.end-call-btn:hover { background: #EF5350; transform: scale(1.08); }
+.end-call-wrap label { font-size: 10px; letter-spacing: .1em; color: var(--t3); font-weight: 500; pointer-events: none; }
 
-/* ── Floating "Hey" trigger (Clippy-style) ── */
-.voice-fab {
-  position: fixed; bottom: 92px; right: 22px; z-index: 150;
-  width: 50px; height: 50px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--or) 0%, var(--or-2) 100%);
-  border: none; color: #000;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 20px rgba(237,174,73,0.38), 0 0 0 0 rgba(237,174,73,0.3);
-  transition: transform .2s, box-shadow .2s;
-  animation: fabBreath 3.5s ease-in-out infinite;
-}
-.voice-fab:hover {
-  transform: scale(1.12);
-  box-shadow: 0 6px 28px rgba(237,174,73,0.55);
-  animation: none;
-}
+/* Floating FAB */
+.voice-fab { position: fixed; bottom: 92px; right: 22px; z-index: 150; width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, var(--or), var(--or-2)); border: none; color: #000; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(237,174,73,0.38); transition: transform .2s, box-shadow .2s; animation: fabBreath 3.5s ease-in-out infinite; }
+.voice-fab:hover { transform: scale(1.12); box-shadow: 0 6px 28px rgba(237,174,73,0.55); animation: none; }
 .voice-fab svg { width: 20px; height: 20px; }
-
-/* Tooltip on FAB */
-.voice-fab::before {
-  content: 'Hey, Oracle';
-  position: absolute; right: calc(100% + 10px); top: 50%;
-  transform: translateY(-50%);
-  background: var(--surf); border: 1px solid var(--border-2); color: var(--t1);
-  font-family: var(--fb); font-size: 12px; font-weight: 500;
-  padding: 5px 10px; border-radius: 8px;
-  white-space: nowrap; pointer-events: none;
-  opacity: 0; transition: opacity .15s;
-}
+.voice-fab::before { content: 'Hey, Oracle'; position: absolute; right: calc(100% + 10px); top: 50%; transform: translateY(-50%); background: var(--surf); border: 1px solid var(--border-2); color: var(--t1); font-family: var(--fb); font-size: 12px; font-weight: 500; padding: 5px 10px; border-radius: 8px; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .15s; }
 .voice-fab:hover::before { opacity: 1; }
-
-@keyframes fabBreath {
-  0%,100% { box-shadow: 0 4px 20px rgba(237,174,73,0.38), 0 0 0 0 rgba(237,174,73,0.25); }
-  50%      { box-shadow: 0 4px 28px rgba(237,174,73,0.50), 0 0 0 10px rgba(237,174,73,0); }
-}
+.voice-fab.active { animation: none; background: linear-gradient(135deg, #4ADE80, #22C55E); }
+@keyframes fabBreath { 0%,100% { box-shadow: 0 4px 20px rgba(237,174,73,0.38); } 50% { box-shadow: 0 4px 32px rgba(237,174,73,0.55); } }
 </style>
 
-<!-- ── Sidebar overlay (mobile) ── -->
-<div class="overlay" id="overlay"></div>
+<!-- Hidden file input -->
+<input type="file" id="fileInput" accept=".md,.txt,.js,.ts,.jsx,.tsx,.py,.java,.go,.rs,.cpp,.c,.cs,.json,.yaml,.yml,.html,.css,.sql,.sh,.env.example,.pdf" style="display:none">
 
-<!-- ── Voice call backdrop ── -->
+<div class="overlay" id="overlay"></div>
 <div class="vc-backdrop" id="vcBackdrop"></div>
 
-<!-- ── Voice call popup ── -->
+<!-- Voice call popup -->
 <div class="vc-popup" id="vcPopup">
   <div class="vc-header">
     <div class="vc-logo">
-      <svg viewBox="0 0 16 16" fill="none">
-        <path d="M8 1L10.5 6H15L11 9.5L12.5 15L8 12L3.5 15L5 9.5L1 6H5.5L8 1Z" fill="currentColor"/>
-      </svg>
+      <svg viewBox="0 0 16 16" fill="none"><path d="M8 1L10.5 6H15L11 9.5L12.5 15L8 12L3.5 15L5 9.5L1 6H5.5L8 1Z" fill="currentColor"/></svg>
       SWIMPLE
     </div>
-    <div class="vc-end-tag" id="vcEndTag">VOICE CALL</div>
+    <div class="vc-end-tag">VOICE CALL</div>
   </div>
-
   <div class="vc-contact">
     <div class="vc-name" id="vcContactName">Oracle</div>
     <div class="vc-mode" id="vcModeLine">ORACLE MODE</div>
   </div>
-
-  <!-- Orb canvas -->
-  <div class="vc-canvas-wrap">
-    <canvas id="vcCanvas"></canvas>
-  </div>
-
-  <!-- Timer -->
+  <div class="vc-canvas-wrap"><canvas id="vcCanvas"></canvas></div>
   <div class="vc-timer" id="vcTimer">00:00</div>
-
-  <!-- State -->
   <div class="vc-state" id="vcState">CONNECTING…</div>
-
-  <!-- Transcript -->
   <div class="vc-transcript" id="vcTranscript">
     <div class="vc-tline ai"><span class="vc-who">Oracle:</span><span>Ask me anything — I'm listening.</span></div>
   </div>
-
-  <!-- Controls -->
   <div class="vc-controls">
     <div class="vc-ctrl-btn">
       <button id="vcMuteBtn" title="Mute mic">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <rect x="9" y="2" width="6" height="11" rx="3" stroke="currentColor" stroke-width="1.8"/>
-          <path d="M5 10a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-          <path d="M12 17v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="9" y="2" width="6" height="11" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M5 10a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 17v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
       </button>
       <label>Mute</label>
     </div>
-
     <div class="end-call-wrap">
-      <button class="end-call-btn" id="endCallBtn" title="End call">
-        <!-- phone-down icon -->
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-          <path d="M3.5 8.5C3.5 8.5 6 6 12 6C18 6 20.5 8.5 20.5 8.5L18 11C18 11 16.5 9.5 12 9.5C7.5 9.5 6 11 6 11L3.5 8.5Z" fill="currentColor"/>
-          <path d="M3.5 8.5L6 11L8 9.5V13L10.5 15.5H13.5L16 13V9.5L18 11L20.5 8.5" stroke="currentColor" stroke-width="0.5" stroke-opacity="0"/>
-          <path d="M7 14.5L5 16.5C5 16.5 8 20 12 20C16 20 19 16.5 19 16.5L17 14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0"/>
-          <!-- simpler down-phone path -->
-          <path d="M6.6 10.8L4.2 8.4C3.9 8.1 3.9 7.6 4.2 7.3L6.7 4.8C7 4.5 7.5 4.5 7.8 4.8L9.5 6.5C9.5 6.5 10.7 5.5 12 5.5C13.3 5.5 14.5 6.5 14.5 6.5L16.2 4.8C16.5 4.5 17 4.5 17.3 4.8L19.8 7.3C20.1 7.6 20.1 8.1 19.8 8.4L17.4 10.8C17.1 11.1 16.6 11.1 16.3 10.8L14.7 9.2C14.7 9.2 13.6 10 12 10C10.4 10 9.3 9.2 9.3 9.2L7.7 10.8C7.4 11.1 6.9 11.1 6.6 10.8Z" fill="white" opacity="0"/>
-        </svg>
-        <!-- clean phone end icon -->
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 0 0-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.12-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99Z" transform="rotate(135 12 12)"/>
-        </svg>
+      <button class="end-call-btn" id="endCallBtn">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 0 0-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.12-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99Z" transform="rotate(135 12 12)"/></svg>
       </button>
       <label>End Call</label>
     </div>
-
     <div class="vc-ctrl-btn">
       <button id="vcSpeakerBtn" class="on" title="AI voice">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M3 9h4l5-5v16l-5-5H3V9Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-          <path d="M16.5 7.5a6 6 0 0 1 0 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-          <path d="M19.5 4.5a10.5 10.5 0 0 1 0 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 9h4l5-5v16l-5-5H3V9Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M16.5 7.5a6 6 0 0 1 0 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
       </button>
       <label>Speaker</label>
     </div>
   </div>
 </div>
 
-<!-- ── Floating "Hey" trigger ── -->
 <button class="voice-fab" id="voiceFab" title="Hey, Oracle">
-  <svg viewBox="0 0 20 20" fill="none">
-    <path d="M10 1.5L12.5 7H18.5L13.5 10.5L15.5 17L10 13.5L4.5 17L6.5 10.5L1.5 7H7.5L10 1.5Z" fill="currentColor" fill-opacity=".9"/>
-  </svg>
+  <svg viewBox="0 0 20 20" fill="none"><path d="M10 1.5L12.5 7H18.5L13.5 10.5L15.5 17L10 13.5L4.5 17L6.5 10.5L1.5 7H7.5L10 1.5Z" fill="currentColor" fill-opacity=".9"/></svg>
 </button>
 
-<!-- ── Main app ── -->
 <div class="app mode-oracle" id="app">
-
   <aside class="sidebar" id="sidebar">
     <div class="logo">
       <div class="logo-mark">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M8 1L10.5 6H15L11 9.5L12.5 15L8 12L3.5 15L5 9.5L1 6H5.5L8 1Z" fill="#000" fill-opacity=".85"/>
-        </svg>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1L10.5 6H15L11 9.5L12.5 15L8 12L3.5 15L5 9.5L1 6H5.5L8 1Z" fill="#000" fill-opacity=".85"/></svg>
       </div>
       <span class="logo-name">Swimple</span>
     </div>
-
     <button class="new-chat" id="newChatBtn">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-      </svg>
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
       New chat
     </button>
-
     <div class="sidebar-label">Agents</div>
     <div class="agent-list">
-      <button class="agent-btn active" data-a="oracle" id="btnOracle">
-        <div class="a-icon">◆</div> Why Oracle
-      </button>
-      <button class="agent-btn" data-a="ticket" id="btnTicket">
-        <div class="a-icon">◈</div> Ticket Builder
-      </button>
+      <button class="agent-btn active" data-a="oracle" id="btnOracle"><div class="a-icon">◆</div> Why Oracle</button>
+      <button class="agent-btn" data-a="ticket" id="btnTicket"><div class="a-icon">◈</div> Ticket Builder</button>
     </div>
-
+    <!-- Loaded document indicator -->
+    <div class="doc-pill" id="docPill">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M4 2h6l4 4v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.4"/><path d="M10 2v4h4" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      <span class="doc-pill-name" id="docPillName"></span>
+      <button class="doc-pill-remove" id="docPillRemove" title="Clear document">×</button>
+    </div>
     <div class="divider"></div>
     <div class="sidebar-label">Recent</div>
     <div class="hist-list" id="histList">
@@ -469,91 +328,223 @@ button:focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
   <main class="main">
     <header class="chat-header">
       <button class="icon-btn menu-btn" id="menuBtn">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-        </svg>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
       </button>
       <div class="h-info">
         <div class="h-agent">Swimple</div>
         <div class="h-sub" id="hSub">Why Oracle · Codebase knowledge base</div>
       </div>
       <span class="mode-badge" id="modeBadge">Oracle</span>
-      <button class="icon-btn voice-on" id="voiceBtn" title="AI voice on — click to mute">
-        <svg id="speakerSvg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M2 6h2.5L8 3v10l-3.5-3H2V6Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
-          <path d="M10.5 5.5a3 3 0 0 1 0 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-          <path d="M12.5 3.5a5.5 5.5 0 0 1 0 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-        </svg>
+      <button class="icon-btn voice-on" id="voiceBtn" title="AI voice on">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 6h2.5L8 3v10l-3.5-3H2V6Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M10.5 5.5a3 3 0 0 1 0 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M12.5 3.5a5.5 5.5 0 0 1 0 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
       </button>
       <button class="icon-btn" id="themeBtn" title="Toggle theme">
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-          <circle cx="7.5" cy="7.5" r="3" stroke="currentColor" stroke-width="1.4"/>
-          <path d="M7.5 1v1.5M7.5 12.5V14M1 7.5h1.5M12.5 7.5H14M3.1 3.1l1.1 1.1M10.8 10.8l1.1 1.1M10.8 3.1l-1.1 1.1M3.1 10.8l1.1 1.1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-        </svg>
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M7.5 1v1.5M7.5 12.5V14M1 7.5h1.5M12.5 7.5H14M3.1 3.1l1.1 1.1M10.8 10.8l1.1 1.1M10.8 3.1l-1.1 1.1M3.1 10.8l1.1 1.1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
       </button>
     </header>
 
     <div class="messages" id="messages"></div>
 
     <div class="input-area">
+      <!-- Doc strip shown when file is loaded -->
+      <div class="doc-strip" id="docStrip">
+        <svg class="doc-strip-icon" width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M4 2h6l4 4v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.4"/><path d="M10 2v4h4" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+        <span class="doc-strip-name" id="docStripName"></span>
+        <span class="doc-strip-words" id="docStripWords"></span>
+        <button class="doc-strip-clear" id="docStripClear">Clear</button>
+      </div>
       <div class="input-wrap">
-        <textarea id="input" placeholder="Ask about your codebase…" rows="1"></textarea>
+        <textarea id="input" placeholder="Ask about your codebase, or upload a doc…" rows="1"></textarea>
+        <!-- Upload button -->
+        <button class="upload-btn" id="uploadBtn" title="Upload a document">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 2h6l4 4v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.4"/><path d="M10 2v4h4" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M6 10l2-2 2 2M8 8v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
         <button class="mic-btn" id="micBtn" title="Start voice call">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <rect x="5.5" y="1" width="5" height="8" rx="2.5" stroke="currentColor" stroke-width="1.4"/>
-            <path d="M3 8a5 5 0 0 0 10 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-            <path d="M8 13v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-          </svg>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="5.5" y="1" width="5" height="8" rx="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M3 8a5 5 0 0 0 10 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M8 13v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
         </button>
         <button class="send-btn" id="sendBtn" disabled>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M8 13V3M3.5 7.5L8 3l4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 13V3M3.5 7.5L8 3l4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
-      <div class="input-hint" id="inputHint">Enter to send · Shift+Enter for new line · click 🎙 or the ✦ button to call</div>
+      <div class="input-hint" id="inputHint">Enter to send · click 📎 to upload a doc · click ✦ to call</div>
     </div>
   </main>
 </div>
 
 <script>
-/* ── Agent config ── */
+/* ══════════════════════════════════════════
+   DOCUMENT CONTEXT — local file intelligence
+══════════════════════════════════════════ */
+const DocCtx = {
+  filename: null,
+  raw: null,
+  chunks: [],
+  wordCount: 0,
+
+  load(filename, text) {
+    this.filename = filename;
+    this.raw = text;
+    this.wordCount = text.split(/\s+/).filter(Boolean).length;
+    this.chunks = this._split(text);
+  },
+
+  clear() { this.filename = null; this.raw = null; this.chunks = []; this.wordCount = 0; },
+
+  loaded() { return !!this.raw; },
+
+  _split(text) {
+    const lines = text.split('\n');
+    const chunks = [];
+    let heading = 'Overview', buf = [];
+    for (const line of lines) {
+      const hm = line.match(/^#{1,4}\s+(.+)/);
+      if (hm) {
+        if (buf.join('').trim()) chunks.push({ heading, text: buf.join('\n') });
+        heading = hm[1].trim(); buf = [];
+      } else { buf.push(line); }
+    }
+    if (buf.join('').trim()) chunks.push({ heading, text: buf.join('\n') });
+    // Also include ungrouped large paragraph runs as own chunks
+    return chunks.length ? chunks : [{ heading: filename || 'Document', text }];
+  },
+
+  search(query) {
+    const words = query.toLowerCase().replace(/[^a-z0-9\s]/g,'').split(/\s+/).filter(w => w.length > 2);
+    if (!words.length) return this.chunks.slice(0, 2);
+    const scored = this.chunks.map(c => {
+      const hay = (c.heading + ' ' + c.text).toLowerCase();
+      const score = words.reduce((s, w) => s + (hay.includes(w) ? 1 : 0), 0);
+      return { ...c, score };
+    });
+    return scored.sort((a, b) => b.score - a.score).filter(c => c.score > 0).slice(0, 3);
+  },
+
+  summary() {
+    const headings = this.chunks.map(c => c.heading).filter(h => h !== 'Overview').slice(0, 6);
+    return headings.length
+      ? `Sections: ${headings.map(h => `**${h}**`).join(' · ')}`
+      : `${this.wordCount.toLocaleString()} words loaded.`;
+  }
+};
+
+/* ══════════════════════════════════════════
+   PERSONALITY ENGINE
+══════════════════════════════════════════ */
+const jokes = [
+  "Why do programmers prefer dark mode? Because light attracts bugs. 🐛",
+  "A SQL query walks into a bar, walks up to two tables and asks: 'Can I join you?'",
+  "There are only 10 types of people in the world: those who understand binary, and those who don't.",
+  "Why was the JavaScript developer sad? Because he didn't know how to `null` his feelings.",
+  "How many programmers does it take to change a light bulb? None — that's a hardware problem.",
+  "What's a developer's favourite place? The foo bar.",
+  "I told my boss three companies were after me and I needed a raise. He asked which companies. 'The electricity company, the bank, and my landlord.' Relatable? Same energy as sprint planning.",
+  "Debugging is like being the detective in a crime movie where you're also the murderer.",
+  "It works on my machine. Ship my machine. Problem solved.",
+  "99 little bugs in the code, 99 little bugs. Take one down, patch it around… 127 little bugs in the code."
+];
+
+function todayStr() {
+  const d = new Date();
+  return d.toLocaleDateString('en-ZA', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+}
+
+const wittyDateSuffix = [
+  "Perfect day to squash that bug you've been ignoring for three sprints.",
+  "A great day to write code. Or at least, refactor someone else's.",
+  "The sun is up. The standup is soon. You've got this.",
+  "Another beautiful day to accidentally push to main.",
+  "Tech debt doesn't sleep, but you should. After you ship this feature."
+];
+
+function personality(text) {
+  const lo = text.toLowerCase().trim();
+
+  // Greeting
+  if (/^(hi|hey|hello|howdy|sup|yo|good morning|good afternoon|good evening|greetings|hola)\b/.test(lo)) {
+    const greets = [
+      "Hey! 👋 I'm **Oracle**, Swimple's AI — basically the senior developer who actually read the docs. What can I help you with?",
+      "Hello! I'm **Oracle**. Think of me as your codebase's therapist — I help you understand *why* things are built the way they are, without judgment. What's on your mind?",
+      "Hey there! **Oracle** here. I speak fluent Architecture, ADR, and the occasional Stack Overflow panic. What are we solving today?",
+      "Hi! I'm **Oracle** — Swimple's AI assistant, specialising in software architecture, code decisions, and answering questions your team forgot to document. Fire away!"
+    ];
+    return greets[Math.floor(Math.random() * greets.length)];
+  }
+
+  // Name
+  if (/who are you|what are you|your name|what('s| is) your name/.test(lo)) {
+    return "I'm **Oracle** — Swimple's built-in AI assistant.\n\nI specialise in:\n- **Answering why** your codebase is built the way it is\n- **Analysing documents** you upload (ADRs, specs, PRDs, code files)\n- **Building tickets** from messy notes\n- **Answering general developer questions** with a side of sarcasm\n\nUpload a doc and I'll actually read it — unlike some teammates I could name.";
+  }
+
+  // Date / time
+  if (/today|what('s| is) the date|current date|what day|what time is it/.test(lo)) {
+    const suffix = wittyDateSuffix[Math.floor(Math.random() * wittyDateSuffix.length)];
+    return `Today is **${todayStr()}**.\n\n${suffix}`;
+  }
+
+  // Joke
+  if (/joke|make me laugh|funny|humou?r|cheer me up/.test(lo)) {
+    return jokes[Math.floor(Math.random() * jokes.length)];
+  }
+
+  // Thanks
+  if (/^(thank(s| you)|cheers|ty|appreciate it|nice one|perfect|great)\b/.test(lo)) {
+    const ty = [
+      "Anytime! That's what I'm here for. 🙌",
+      "Happy to help. If only git blame was this supportive.",
+      "You're welcome! Go ship something great. 🚀",
+      "No problem. I'll be here when the next bug shows up — probably soon."
+    ];
+    return ty[Math.floor(Math.random() * ty.length)];
+  }
+
+  // Capabilities / help
+  if (/what can you do|help|capabilities|how do you work/.test(lo)) {
+    return "Here's what I can do:\n\n**📎 Upload a document** — Drop in any code file, markdown doc, ADR, PRD, or spec and I'll analyse it. Ask me anything about what's inside.\n\n**◆ Why Oracle** — Answers *why* your codebase is built the way it is, using your architecture docs and uploaded context.\n\n**◈ Ticket Builder** — Paste standup notes or a bug report; I'll turn it into structured dev tickets.\n\n**🎙 Voice Call** — Tap the ✦ button or the mic and talk to me hands-free.\n\n**General questions** — Ask me about software architecture, best practices, date, or tell me to tell you a joke. I'm multifaceted.";
+  }
+
+  return null; // not a personality question — fall through to doc/agent logic
+}
+
+/* ══════════════════════════════════════════
+   AGENT CONFIG
+══════════════════════════════════════════ */
 const AGENTS = {
   oracle: {
     name:'Why Oracle', sub:'Codebase knowledge base', badge:'Oracle',
-    placeholder:'Ask about your codebase…',
+    placeholder:'Ask about your codebase, or upload a doc…',
     emptyTitle:'Ask the Oracle',
-    emptySub:'Grounded answers from your architecture docs, ADRs, and design decisions — no hallucinations.',
+    emptySub:'Upload a document or ask about your architecture, decisions, and code — grounded answers, zero hallucinations.',
     glyph:`<svg viewBox="0 0 28 28" fill="none"><path d="M14 3L17.5 10.5H25L19 15.5L21.5 23L14 19L6.5 23L9 15.5L3 10.5H10.5L14 3Z" fill="currentColor" fill-opacity=".8"/></svg>`,
-    chips:['Where does authentication happen?','Why Postgres over MongoDB?','What is the retry policy?','Explain the architecture'],
+    chips:['What does this document cover?','Where does authentication happen?','Why Postgres over MongoDB?','Tell me a developer joke'],
     responses:{
-      auth:`Looking at **example_architecture.md** in your knowledge base:\n\nAuthentication lives in \`src/auth/middleware.py\`. The system uses **JWT tokens with a 1-hour expiry**. Refresh tokens are stored in **Redis**, not Postgres — this was a deliberate call.\n\n**Why Redis for refresh tokens?**\nFast O(1) revocation: when a token is invalidated, you delete the Redis key instantly rather than querying Postgres rows on every authenticated request. The latency difference matters at scale.`,
-      postgres:`From **example_architecture.md**, this decision was made in Q3 2023:\n\n**Postgres was chosen over MongoDB** for two reasons:\n\n1. **Relational data model** — the project data is inherently relational; joins and foreign-key constraints are load-bearing, not optional\n2. **ACID transactions** — billing events need atomicity that MongoDB can't provide without significant workarounds\n\nMongoDB was rejected due to aggregation pipeline complexity adding 200–400ms overhead per reporting query.`,
-      retry:`Based on **example_architecture.md**:\n\n- **Auth service:** no retry — a failed auth is returned immediately to avoid credential-stuffing amplification\n- **External API calls:** exponential backoff, max 3 retries, starting at 500ms\n- **Database connections:** connection pool with 5-second timeout before failing over\n\n> Note: this is example documentation. Your real retry policy will be in your actual ADRs.`,
-      default:`Based on **example_architecture.md**:\n\nThis project uses a standard web architecture with a few notable decisions:\n\n- **Postgres** over MongoDB (relational integrity + ACID for billing)\n- **JWT auth** with refresh tokens in Redis for fast revocation\n- \`src/auth/middleware.py\` is the authentication entry point\n\n> Add your real READMEs, ADRs, and design docs to the knowledge_base/ folder for grounded answers about your actual codebase.`
+      auth:`Looking at your knowledge base:\n\nAuthentication lives in \`src/auth/middleware.py\`. The system uses **JWT tokens with a 1-hour expiry**. Refresh tokens are stored in **Redis**, not Postgres — a deliberate call.\n\n**Why Redis for refresh tokens?**\nFast O(1) revocation: deleting a Redis key is instant, versus a Postgres query on every authenticated request. The latency difference is meaningful at scale.`,
+      postgres:`This decision was made in Q3 2023:\n\n**Postgres was chosen over MongoDB** for two reasons:\n\n1. **Relational data model** — the project data has natural joins and foreign-key constraints that aren't optional\n2. **ACID transactions** — billing events need atomicity that MongoDB can't guarantee without significant workarounds\n\nMongoDB's aggregation pipeline added 200–400ms overhead per reporting query, which wasn't acceptable.`,
+      retry:`- **Auth service:** no retry — a failed auth returns immediately to prevent credential-stuffing amplification\n- **External API calls:** exponential backoff, max 3 retries, starting at 500ms\n- **Database connections:** connection pool with a 5-second timeout before failing over`,
+      default:`I'm ready to help with your codebase questions.\n\n**Tip:** Upload a document (📎 button) and I'll give you answers grounded in your actual architecture — not generic advice.\n\nOr ask me:\n- "What does this document cover?"\n- "Where does auth happen?"\n- "Explain the retry policy"\n- "Tell me a joke" 😄`
     }
   },
   ticket: {
     name:'Ticket Builder', sub:'Notes & bug reports → structured tickets', badge:'Tickets',
-    placeholder:'Paste meeting notes or a bug report…',
+    placeholder:'Paste meeting notes, a bug report, or upload a spec…',
     emptyTitle:'Build Tickets',
-    emptySub:'Paste standup notes, bug reports, or requirements. Get back properly structured tickets — one per work item.',
+    emptySub:'Paste standup notes, bug reports, or upload a spec file. I\'ll structure them into proper dev tickets.',
     glyph:`<svg viewBox="0 0 28 28" fill="none"><rect x="5" y="4" width="18" height="20" rx="3" stroke="currentColor" stroke-width="1.8" stroke-opacity=".8"/><path d="M10 10h8M10 14h8M10 18h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-opacity=".8"/></svg>`,
-    chips:['Convert standup notes to tickets','Triage this bug: login fails after reset','Break down a feature request','Draft sprint tickets from requirements'],
+    chips:['Convert standup notes to tickets','Triage: login fails after reset','Break down a feature request','What tickets are in this doc?'],
     responses:{
-      bug:`I've structured this as a bug ticket:\n\n---\n\n**Bug: Login fails with "invalid credentials" after password reset**\n\n**Severity:** High — affected users are fully locked out\n\n**Reproduction steps:**\n1. Go to /forgot-password and submit a valid email\n2. Click the reset link\n3. Enter a new password\n4. Attempt to log in → "invalid credentials"\n\n**Acceptance criteria:**\n- [ ] Login succeeds immediately after password reset\n- [ ] Existing sessions invalidated on password change\n- [ ] Redis refresh-token entries cleared on reset\n- [ ] Regression test added\n\n**Suspected component:** \`src/auth/middleware.py\` · **Owner:** Auth team`,
-      standup:`Converting to **3 sprint tickets**:\n\n---\n\n**Feature: Email validation on signup**\nMultiple users created accounts with typos. Validate format + MX record on submit.\n**Severity:** Medium · **Owner:** Frontend\n\n---\n\n**Chore: Redis 6 → 7 migration**\nEOL next quarter. Zero-downtime migration, preserve all active sessions.\n**Severity:** High · **Owner:** Platform\n\n---\n\n**Bug: Dashboard load regression on large datasets**\nLoading >10K rows now takes 8–12s. Target <2s.\n**Severity:** High · **Owner:** Data team`,
-      default:`To convert your input into structured tickets, paste in:\n\n- **Meeting notes** from a standup, sprint planning, or roadmap session\n- **A bug report** with symptoms and reproduction context\n- **A feature request** or requirements outline\n\nI'll apply the severity rubric, assign component owners, and flag missing fields rather than guessing.\n\nTry one of the examples above to see the format.`
+      bug:`I've structured this as a bug ticket:\n\n---\n\n**Bug: Login fails with "invalid credentials" after password reset**\n\n**Severity:** High — affected users are fully locked out\n\n**Steps to reproduce:**\n1. Go to /forgot-password and submit a valid email\n2. Click the reset link → enter a new password\n3. Attempt to log in → "invalid credentials" error\n\n**Acceptance criteria:**\n- [ ] Login succeeds immediately after password reset\n- [ ] Existing sessions are invalidated on password change\n- [ ] Redis refresh-token entries cleared on reset\n- [ ] Regression test added\n\n**Suspected component:** \`src/auth/middleware.py\` · **Owner:** Auth team`,
+      standup:`Converting to **3 sprint tickets**:\n\n---\n\n**Feature: Email validation on signup** — Medium · Frontend\nUsers creating accounts with typos. Add format + MX record validation on submit.\n\n---\n\n**Chore: Redis 6 → 7 migration** — High · Platform\nEOL next quarter. Zero-downtime migration, preserve active sessions.\n\n---\n\n**Bug: Dashboard load regression on large datasets** — High · Data team\nLoading >10K rows now takes 8–12s. Target <2s.`,
+      default:`Paste in meeting notes, a bug report, or a feature request — or **upload a spec document** (📎) and I'll extract the tickets from it.\n\nI apply a severity rubric, flag missing info, and structure each item with acceptance criteria and a suggested owner.\n\nTry the chips above to see example outputs.`
     }
   }
 };
 
-/* ── Chat state ── */
+/* ══════════════════════════════════════════
+   CHAT STATE
+══════════════════════════════════════════ */
 let agent = 'oracle', msgs = [], streaming = false, theme = 'system';
 let voiceEnabled = true, isSpeaking = false;
 const synth = window.speechSynthesis;
 
-/* ── DOM ── */
 const app       = document.getElementById('app');
 const sidebar   = document.getElementById('sidebar');
 const overlay   = document.getElementById('overlay');
@@ -562,11 +553,20 @@ const inputEl   = document.getElementById('input');
 const sendBtn   = document.getElementById('sendBtn');
 const micBtn    = document.getElementById('micBtn');
 const voiceBtn  = document.getElementById('voiceBtn');
+const uploadBtn = document.getElementById('uploadBtn');
+const fileInput = document.getElementById('fileInput');
 const hSub      = document.getElementById('hSub');
 const modeBadge = document.getElementById('modeBadge');
 const histList  = document.getElementById('histList');
 const hint      = document.getElementById('inputHint');
 const voiceFab  = document.getElementById('voiceFab');
+const docStrip  = document.getElementById('docStrip');
+const docStripName  = document.getElementById('docStripName');
+const docStripWords = document.getElementById('docStripWords');
+const docStripClear = document.getElementById('docStripClear');
+const docPill        = document.getElementById('docPill');
+const docPillName    = document.getElementById('docPillName');
+const docPillRemove  = document.getElementById('docPillRemove');
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const uid   = () => Math.random().toString(36).slice(2);
@@ -581,17 +581,49 @@ function fmt(raw) {
     .replace(/^> (.+)$/gm,'<div class="warn">$1</div>')
     .replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');
 }
+
+/* ── Response router ── */
 function pick(text) {
-  const lo = text.toLowerCase(), r = AGENTS[agent].responses;
-  if (agent==='oracle') {
-    if (/auth|login|jwt|token/.test(lo)) return r.auth;
-    if (/postgres|mongo|database|db/.test(lo)) return r.postgres;
-    if (/retry|policy|backoff/.test(lo)) return r.retry;
-    return r.default;
+  // 1. Personality checks first (always)
+  const pReply = personality(text);
+  if (pReply) return pReply;
+
+  const lo = text.toLowerCase();
+
+  // 2. Document-grounded response
+  if (DocCtx.loaded()) {
+    // Special: summarise / overview
+    if (/what does this (doc|document|file) (cover|contain|say|include)|summary|overview|summarise|summarize/.test(lo)) {
+      const sections = DocCtx.chunks.slice(0, 5).map(c => `**${c.heading}**\n${c.text.trim().slice(0, 120)}…`).join('\n\n');
+      return `Here's what **${DocCtx.filename}** covers:\n\n${sections}\n\n> ${DocCtx.wordCount.toLocaleString()} words total. Ask me anything specific about it.`;
+    }
+
+    // Keyword search in uploaded doc
+    const results = DocCtx.search(text);
+    if (results.length) {
+      const excerpts = results.map(r =>
+        `**${r.heading}**\n${r.text.trim().slice(0, 280)}${r.text.length > 280 ? '…' : ''}`
+      ).join('\n\n---\n\n');
+      return `From **${DocCtx.filename}**:\n\n${excerpts}\n\n> Based on your uploaded document. Ask a follow-up to dig deeper.`;
+    }
+
+    // Doc loaded but no match — fall through with a nudge
+    return `I didn't find a direct match in **${DocCtx.filename}** for that. Try rephrasing, or ask:\n- "What does this document cover?"\n- A specific term from the file\n\nAlternatively, I can answer general questions about software development.`;
   }
-  if (/bug|fail|error|crash/.test(lo)) return r.bug;
-  if (/standup|sprint|meeting|notes/.test(lo)) return r.standup;
-  return r.default;
+
+  // 3. Ticket Builder agent responses
+  if (agent === 'ticket') {
+    if (/bug|fail|error|crash|broken|issue/.test(lo)) return AGENTS.ticket.responses.bug;
+    if (/standup|sprint|meeting|notes|planning/.test(lo)) return AGENTS.ticket.responses.standup;
+    if (/ticket|task|story|jira|linear|issue/.test(lo)) return AGENTS.ticket.responses.standup;
+    return AGENTS.ticket.responses.default;
+  }
+
+  // 4. Oracle hardcoded fallbacks
+  if (/auth|login|jwt|token|middleware/.test(lo)) return AGENTS.oracle.responses.auth;
+  if (/postgres|mongo|database|db/.test(lo)) return AGENTS.oracle.responses.postgres;
+  if (/retry|policy|backoff/.test(lo)) return AGENTS.oracle.responses.retry;
+  return AGENTS.oracle.responses.default;
 }
 
 /* ── TTS ── */
@@ -599,11 +631,10 @@ function speakText(raw) {
   if (!synth || !voiceEnabled) return;
   const clean = raw
     .replace(/\*\*(.+?)\*\*/g,'$1').replace(/`([^`]+)`/g,'$1')
-    .replace(/^---$/gm,'.').replace(/^> /gm,'')
-    .replace(/\[ \]/g,'').replace(/[→•]/g,' ')
-    .replace(/<br>/g,' ').replace(/\s{2,}/g,' ').trim();
+    .replace(/^---$/gm,'.').replace(/^> /gm,'').replace(/\[ \]/g,'')
+    .replace(/[→•📎◆◈🚀🐛👋🙌]/g,'').replace(/<br>/g,' ').replace(/\s{2,}/g,' ').trim();
   synth.cancel();
-  const utt = new SpeechSynthesisUtterance(clean);
+  const utt = new SpeechSynthesisUtterance(clean.slice(0, 600));
   utt.lang='en-US'; utt.rate=1.05; utt.pitch=1; utt.volume=1;
   const voices = synth.getVoices();
   const best = voices.find(v => /Natural|Neural/i.test(v.name) && v.lang.startsWith('en'))
@@ -612,24 +643,110 @@ function speakText(raw) {
   if (best) utt.voice = best;
   utt.onstart = () => {
     isSpeaking = true;
-    const avs = messages.querySelectorAll('.msg-row.ai .m-avatar');
-    if (avs.length) avs[avs.length-1].classList.add('speaking');
+    messages.querySelectorAll('.msg-row.ai .m-avatar').forEach((a,i,arr) => { if(i===arr.length-1) a.classList.add('speaking'); });
   };
-  utt.onend = utt.onerror = () => {
-    isSpeaking = false;
-    messages.querySelectorAll('.m-avatar.speaking').forEach(a => a.classList.remove('speaking'));
-  };
+  utt.onend = utt.onerror = () => { isSpeaking = false; messages.querySelectorAll('.m-avatar.speaking').forEach(a=>a.classList.remove('speaking')); };
   synth.speak(utt);
 }
 
 voiceBtn.addEventListener('click', () => {
   voiceEnabled = !voiceEnabled;
   voiceBtn.classList.toggle('voice-on', voiceEnabled);
-  voiceBtn.title = voiceEnabled ? 'AI voice on — click to mute' : 'AI voice off — click to unmute';
   if (!voiceEnabled && synth) synth.cancel();
-  const speakerBtnEl = document.getElementById('vcSpeakerBtn');
-  if (speakerBtnEl) speakerBtnEl.classList.toggle('on', voiceEnabled);
+  const sb = document.getElementById('vcSpeakerBtn');
+  if (sb) sb.classList.toggle('on', voiceEnabled);
 });
+
+/* ── File upload ── */
+function showDocUI(filename, wordCount) {
+  docStripName.textContent = filename;
+  docStripWords.textContent = `· ${wordCount.toLocaleString()} words`;
+  docStrip.classList.add('show');
+  docPillName.textContent = filename;
+  docPill.classList.add('show');
+  uploadBtn.classList.add('has-doc');
+}
+
+function clearDoc() {
+  DocCtx.clear();
+  docStrip.classList.remove('show');
+  docPill.classList.remove('show');
+  uploadBtn.classList.remove('has-doc');
+}
+
+async function readTextFile(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result);
+    r.onerror = rej;
+    r.readAsText(file, 'utf-8');
+  });
+}
+
+async function handleFile(file) {
+  const MAX = 500_000; // 500KB text limit
+  let text = '';
+
+  if (file.type === 'application/pdf') {
+    // Load PDF.js lazily
+    if (!window.pdfjsLib) {
+      await new Promise((res, rej) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+        s.onload = res; s.onerror = rej;
+        document.head.appendChild(s);
+      });
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+    try {
+      const buf  = await file.arrayBuffer();
+      const pdf  = await pdfjsLib.getDocument({ data: buf }).promise;
+      const parts = [];
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        parts.push(content.items.map(it => it.str).join(' '));
+      }
+      text = parts.join('\n\n');
+    } catch(e) {
+      return appendSystemMsg(`⚠ Could not read PDF: ${e.message}. Try a text-based file instead.`);
+    }
+  } else {
+    try { text = await readTextFile(file); }
+    catch(e) { return appendSystemMsg(`⚠ Could not read "${file.name}".`); }
+  }
+
+  if (!text.trim()) return appendSystemMsg(`⚠ "${file.name}" appears to be empty or unreadable.`);
+  if (text.length > MAX) text = text.slice(0, MAX) + '\n\n[... truncated at 500KB ...]';
+
+  DocCtx.load(file.name, text);
+  showDocUI(file.name, DocCtx.wordCount);
+
+  // Announce in chat
+  const ext  = file.name.split('.').pop().toUpperCase();
+  const lineCount = text.split('\n').length;
+  appendSystemMsg(
+    `📎 **${file.name}** loaded (${DocCtx.wordCount.toLocaleString()} words · ${lineCount.toLocaleString()} lines · ${ext}).\n\n` +
+    DocCtx.summary() + `\n\nAsk me anything about it — or try "What does this document cover?"`
+  );
+}
+
+function appendSystemMsg(md) {
+  if (messages.querySelector('.empty')) messages.innerHTML = '';
+  const id = uid();
+  msgs.push({ role:'ai', content: md, id });
+  renderMsg(msgs[msgs.length-1]);
+}
+
+uploadBtn.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (file) handleFile(file);
+  e.target.value = '';
+});
+docStripClear.addEventListener('click', clearDoc);
+docPillRemove.addEventListener('click', clearDoc);
 
 /* ── Render ── */
 function renderEmpty() {
@@ -639,8 +756,11 @@ function renderEmpty() {
       <div class="empty-glyph" style="color:var(--ac)">${cfg.glyph}</div>
       <div class="empty-title">${cfg.emptyTitle}</div>
       <div class="empty-sub">${cfg.emptySub}</div>
-      <div class="chips">${cfg.chips.map(c=>`<button class="chip" onclick="sendMessage('${c.replace(/'/g,"\\'")}')">
-        ${c}</button>`).join('')}</div>
+      <div class="chips">${cfg.chips.map(c=>`<button class="chip" onclick="sendMessage('${c.replace(/'/g,"\\'")}')">${c}</button>`).join('')}</div>
+      <label class="upload-nudge" onclick="document.getElementById('fileInput').click()">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M4 2h6l4 4v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.4"/><path d="M10 2v4h4" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M6 10l2-2 2 2M8 8v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Upload a doc — ADR, spec, code file, or README — and I'll analyse it
+      </label>
     </div>`;
 }
 
@@ -668,7 +788,7 @@ async function streamText(id, text) {
     built += tok;
     bubble.innerHTML = fmt(built) + '<span class="cur"></span>';
     scrollBottom();
-    if (tok.trim()) await sleep(16 + Math.random()*26);
+    if (tok.trim()) await sleep(14 + Math.random()*22);
   }
   bubble.innerHTML = fmt(built);
 }
@@ -681,7 +801,10 @@ async function sendMessage(text) {
   const id1 = uid(); msgs.push({role:'user',content:text,id:id1}); renderMsg(msgs[msgs.length-1]);
   const id2 = uid(); msgs.push({role:'ai',content:'',id:id2,thinking:true}); renderMsg(msgs[msgs.length-1]);
 
-  await sleep(500 + Math.random()*400);
+  // Thinking delay — shorter for personality replies
+  const isPersonal = !!personality(text);
+  await sleep(isPersonal ? 280 : 500 + Math.random()*400);
+
   const response = pick(text);
   msgs[msgs.length-1].thinking = false; msgs[msgs.length-1].content = response;
   await streamText(id2, response);
@@ -695,7 +818,6 @@ async function sendMessage(text) {
   streaming = false; updateSend();
 }
 
-/* ── Input ── */
 function updateSend() { sendBtn.disabled = !inputEl.value.trim() || streaming; }
 inputEl.addEventListener('input', () => {
   inputEl.style.height = 'auto';
@@ -720,28 +842,22 @@ function switchAgent(a) {
   hSub.textContent=cfg.name+' · '+cfg.sub;
   modeBadge.textContent=cfg.badge;
   inputEl.placeholder=cfg.placeholder;
-  const n = document.getElementById('vcContactName');
-  if (n) n.textContent = a === 'oracle' ? 'Oracle' : 'Ticket Builder';
-  const m = document.getElementById('vcModeLine');
-  if (m) m.textContent = a === 'oracle' ? 'ORACLE MODE' : 'TICKET MODE';
+  const n=document.getElementById('vcContactName'); if(n) n.textContent = a==='oracle'?'Oracle':'Ticket Builder';
+  const m=document.getElementById('vcModeLine'); if(m) m.textContent = a==='oracle'?'ORACLE MODE':'TICKET MODE';
   renderEmpty(); closeSidebar();
 }
 document.getElementById('btnOracle').addEventListener('click',()=>switchAgent('oracle'));
 document.getElementById('btnTicket').addEventListener('click',()=>switchAgent('ticket'));
 document.getElementById('newChatBtn').addEventListener('click',()=>{msgs=[];renderEmpty();closeSidebar();});
 
-/* ── Sidebar ── */
 function openSidebar()  { sidebar.classList.add('open');    overlay.classList.add('show'); }
 function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('show'); }
 document.getElementById('menuBtn').addEventListener('click', openSidebar);
 overlay.addEventListener('click', closeSidebar);
-
-/* ── Theme ── */
 document.getElementById('themeBtn').addEventListener('click',()=>{
   const t=['system','dark','light']; theme=t[(t.indexOf(theme)+1)%3];
   theme==='system' ? document.documentElement.removeAttribute('data-theme') : document.documentElement.setAttribute('data-theme',theme);
 });
-
 histList.addEventListener('click',e=>{
   const item=e.target.closest('.hist-item'); if(!item) return;
   histList.querySelectorAll('.hist-item').forEach(i=>i.classList.remove('active'));
@@ -749,9 +865,8 @@ histList.addEventListener('click',e=>{
 });
 
 /* ═══════════════════════════════════════════════
-   VOICE CALL POPUP — Canvas + State Machine
+   VOICE CALL POPUP
 ═══════════════════════════════════════════════ */
-
 const vcPopup    = document.getElementById('vcPopup');
 const vcBackdrop = document.getElementById('vcBackdrop');
 const vcCanvas   = document.getElementById('vcCanvas');
@@ -762,338 +877,86 @@ const endCallBtn = document.getElementById('endCallBtn');
 const vcMuteBtn  = document.getElementById('vcMuteBtn');
 const vcSpeakerBtn = document.getElementById('vcSpeakerBtn');
 
-const VC_DPR  = Math.min(window.devicePixelRatio || 1, 2);
-const VC_SIZE = 190;
-vcCanvas.width  = VC_SIZE * VC_DPR;
-vcCanvas.height = VC_SIZE * VC_DPR;
-const vcCtx = vcCanvas.getContext('2d');
-vcCtx.scale(VC_DPR, VC_DPR);
-const VCX = VC_SIZE / 2, VCY = VC_SIZE / 2;
+const VC_DPR=Math.min(window.devicePixelRatio||1,2), VC_SIZE=190;
+vcCanvas.width=VC_SIZE*VC_DPR; vcCanvas.height=VC_SIZE*VC_DPR;
+const vcCtx=vcCanvas.getContext('2d'); vcCtx.scale(VC_DPR,VC_DPR);
+const VCX=VC_SIZE/2, VCY=VC_SIZE/2;
 
-let vcOpen = false;
-let vcCallState = 'idle'; // idle | listening | processing | speaking
-let vcMuted = false;
-let vcTimerInt = null, vcSeconds = 0;
-let vcRaf = null;
-let vcAudioCtx = null, vcAnalyser = null, vcStream = null;
-let vcRecognition = null, vcSimPhase = 0;
-let vcLastQ = '', vcLastA = '';
-
-/* ── Mic icon variants ── */
-const micIconOn = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="9" y="2" width="6" height="11" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M5 10a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 17v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`;
-const micIconOff = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="9" y="2" width="6" height="11" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M5 10a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 17v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="4" y1="4" x2="20" y2="20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+let vcOpen=false, vcCallState='idle', vcMuted=false, vcTimerInt=null, vcSeconds=0;
+let vcRaf=null, vcAudioCtx=null, vcAnalyser=null, vcStream=null;
+let vcRecognition=null, vcSimPhase=0;
 
 function setVcCallState(s) {
-  vcCallState = s;
-  const el = vcState;
-  el.className = 'vc-state';
-  const labels = { idle:'STANDBY', listening:'LISTENING…', processing:'THINKING…', speaking:'RESPONDING…' };
-  el.textContent = labels[s] || s.toUpperCase();
-  if (s === 'listening')  el.classList.add('listening');
-  if (s === 'processing') el.classList.add('processing');
-  if (s === 'speaking')   el.classList.add('speaking');
+  vcCallState=s; vcState.className='vc-state';
+  const L={idle:'STANDBY',listening:'LISTENING…',processing:'THINKING…',speaking:'RESPONDING…'};
+  vcState.textContent=L[s]||s.toUpperCase();
+  if(s==='listening') vcState.classList.add('listening');
+  if(s==='processing') vcState.classList.add('processing');
+  if(s==='speaking')  vcState.classList.add('speaking');
 }
 
-/* ── Canvas draw loop (scaled for 190px) ── */
 function vcDraw() {
-  vcRaf = requestAnimationFrame(vcDraw);
-  vcCtx.clearRect(0, 0, VC_SIZE, VC_SIZE);
+  vcRaf=requestAnimationFrame(vcDraw);
+  vcCtx.clearRect(0,0,VC_SIZE,VC_SIZE);
+  const t=performance.now()/1000;
+  const isActive=vcCallState!=='idle', isListen=vcCallState==='listening';
+  const isSpeak=vcCallState==='speaking', isProc=vcCallState==='processing';
 
-  const t       = performance.now() / 1000;
-  const isActive = vcCallState !== 'idle';
-  const isListen = vcCallState === 'listening';
-  const isSpeak  = vcCallState === 'speaking';
-  const isProc   = vcCallState === 'processing';
-
-  /* ── Ring 3: outer dashed ── */
-  const r3  = 76; const op3 = isActive ? 0.45 : 0.18;
-  vcCtx.save(); vcCtx.translate(VCX, VCY); vcCtx.rotate(t * 0.18);
-  vcCtx.setLineDash([2, 10]); vcCtx.strokeStyle = `rgba(237,174,73,${op3})`;
-  vcCtx.lineWidth = 0.8;
-  vcCtx.beginPath(); vcCtx.arc(0, 0, r3, 0, Math.PI * 2); vcCtx.stroke();
-  for (let i = 0; i < 30; i++) {
-    const a = (i / 30) * Math.PI * 2; const long = i % 5 === 0;
-    vcCtx.setLineDash([]); vcCtx.strokeStyle = `rgba(237,174,73,${long ? op3*1.5 : op3*0.5})`;
-    vcCtx.lineWidth = long ? 1.1 : 0.5;
-    vcCtx.beginPath();
-    vcCtx.moveTo(Math.cos(a) * (r3 - (long?6:2)), Math.sin(a) * (r3 - (long?6:2)));
-    vcCtx.lineTo(Math.cos(a) * (r3 + (long?6:2)), Math.sin(a) * (r3 + (long?6:2)));
-    vcCtx.stroke();
-  }
+  const r3=76,op3=isActive?.45:.18;
+  vcCtx.save(); vcCtx.translate(VCX,VCY); vcCtx.rotate(t*.18);
+  vcCtx.setLineDash([2,10]); vcCtx.strokeStyle=`rgba(237,174,73,${op3})`; vcCtx.lineWidth=.8;
+  vcCtx.beginPath(); vcCtx.arc(0,0,r3,0,Math.PI*2); vcCtx.stroke();
+  for(let i=0;i<30;i++){const a=(i/30)*Math.PI*2,lg=i%5===0;vcCtx.setLineDash([]);vcCtx.strokeStyle=`rgba(237,174,73,${lg?op3*1.5:op3*.5})`;vcCtx.lineWidth=lg?1.1:.5;vcCtx.beginPath();vcCtx.moveTo(Math.cos(a)*(r3-(lg?6:2)),Math.sin(a)*(r3-(lg?6:2)));vcCtx.lineTo(Math.cos(a)*(r3+(lg?6:2)),Math.sin(a)*(r3+(lg?6:2)));vcCtx.stroke();}
   vcCtx.restore();
 
-  /* ── Ring 2: 3 arcs CCW ── */
-  const r2  = 58; const op2 = isActive ? 0.6 : 0.22;
-  vcCtx.save(); vcCtx.translate(VCX, VCY); vcCtx.rotate(-t * 0.28);
-  vcCtx.setLineDash([]); vcCtx.lineWidth = 1;
-  for (let i = 0; i < 3; i++) {
-    const start = i * (Math.PI * 2 / 3);
-    const alpha = isProc ? op2 * (0.5 + 0.5 * Math.sin(t * 4 + i)) : op2;
-    vcCtx.strokeStyle = `rgba(237,174,73,${alpha})`;
-    vcCtx.beginPath(); vcCtx.arc(0, 0, r2, start, start + Math.PI * 0.55); vcCtx.stroke();
-  }
+  const r2=58,op2=isActive?.6:.22;
+  vcCtx.save(); vcCtx.translate(VCX,VCY); vcCtx.rotate(-t*.28);
+  vcCtx.setLineDash([]); vcCtx.lineWidth=1;
+  for(let i=0;i<3;i++){const s=i*(Math.PI*2/3),alpha=isProc?op2*(.5+.5*Math.sin(t*4+i)):op2;vcCtx.strokeStyle=`rgba(237,174,73,${alpha})`;vcCtx.beginPath();vcCtx.arc(0,0,r2,s,s+Math.PI*.55);vcCtx.stroke();}
   vcCtx.restore();
 
-  /* ── Ring 1: 4 arcs CW ── */
-  const r1  = 42; const op1 = isActive ? 0.7 : 0.25;
-  vcCtx.save(); vcCtx.translate(VCX, VCY); vcCtx.rotate(t * 0.55);
-  vcCtx.setLineDash([]); vcCtx.lineWidth = 1.2;
-  for (let i = 0; i < 4; i++) {
-    const alpha = isListen ? op1*(0.6+0.4*Math.sin(t*8+i*1.5)) : op1;
-    vcCtx.strokeStyle = `rgba(237,174,73,${alpha})`;
-    vcCtx.beginPath(); vcCtx.arc(0, 0, r1, i*(Math.PI/2), i*(Math.PI/2)+Math.PI*0.36); vcCtx.stroke();
-  }
+  const r1=42,op1=isActive?.7:.25;
+  vcCtx.save(); vcCtx.translate(VCX,VCY); vcCtx.rotate(t*.55);
+  vcCtx.setLineDash([]); vcCtx.lineWidth=1.2;
+  for(let i=0;i<4;i++){const alpha=isListen?op1*(.6+.4*Math.sin(t*8+i*1.5)):op1;vcCtx.strokeStyle=`rgba(237,174,73,${alpha})`;vcCtx.beginPath();vcCtx.arc(0,0,r1,i*(Math.PI/2),i*(Math.PI/2)+Math.PI*.36);vcCtx.stroke();}
   vcCtx.restore();
 
-  /* ── Waveform ── */
-  const wBase = 46;
-  if (isListen && vcAnalyser) {
-    const fd = new Uint8Array(vcAnalyser.frequencyBinCount);
-    vcAnalyser.getByteFrequencyData(fd);
-    for (let i = 0; i < Math.min(48, fd.length); i++) {
-      const angle = (i / 48) * Math.PI * 2 - Math.PI / 2;
-      const norm  = fd[i] / 255;
-      vcCtx.strokeStyle = `rgba(237,174,73,${0.3 + 0.65 * norm})`;
-      vcCtx.lineWidth = 1.8;
-      vcCtx.beginPath();
-      vcCtx.moveTo(VCX + Math.cos(angle) * wBase, VCY + Math.sin(angle) * wBase);
-      vcCtx.lineTo(VCX + Math.cos(angle) * (wBase + norm * 26), VCY + Math.sin(angle) * (wBase + norm * 26));
-      vcCtx.stroke();
-    }
-  } else if (isSpeak) {
-    vcSimPhase += 0.04;
-    for (let i = 0; i < 48; i++) {
-      const angle = (i / 48) * Math.PI * 2 - Math.PI / 2;
-      const wave  = Math.sin(vcSimPhase * 3.5 + i * 0.22) * 0.55 + 0.5;
-      const d     = Math.sin(vcSimPhase * 14 + i * 0.9) * 0.12;
-      vcCtx.strokeStyle = `rgba(237,174,73,${0.25 + 0.5 * wave})`;
-      vcCtx.lineWidth = 1.8;
-      vcCtx.beginPath();
-      vcCtx.moveTo(VCX + Math.cos(angle) * wBase, VCY + Math.sin(angle) * wBase);
-      vcCtx.lineTo(VCX + Math.cos(angle) * (wBase + (wave+d)*20), VCY + Math.sin(angle) * (wBase + (wave+d)*20));
-      vcCtx.stroke();
-    }
-  }
+  const wBase=46;
+  if(isListen&&vcAnalyser){const fd=new Uint8Array(vcAnalyser.frequencyBinCount);vcAnalyser.getByteFrequencyData(fd);for(let i=0;i<Math.min(48,fd.length);i++){const angle=(i/48)*Math.PI*2-Math.PI/2,norm=fd[i]/255;vcCtx.strokeStyle=`rgba(237,174,73,${.3+.65*norm})`;vcCtx.lineWidth=1.8;vcCtx.beginPath();vcCtx.moveTo(VCX+Math.cos(angle)*wBase,VCY+Math.sin(angle)*wBase);vcCtx.lineTo(VCX+Math.cos(angle)*(wBase+norm*26),VCY+Math.sin(angle)*(wBase+norm*26));vcCtx.stroke();}}
+  else if(isSpeak){vcSimPhase+=.04;for(let i=0;i<48;i++){const angle=(i/48)*Math.PI*2-Math.PI/2,wave=Math.sin(vcSimPhase*3.5+i*.22)*.55+.5,d=Math.sin(vcSimPhase*14+i*.9)*.12;vcCtx.strokeStyle=`rgba(237,174,73,${.25+.5*wave})`;vcCtx.lineWidth=1.8;vcCtx.beginPath();vcCtx.moveTo(VCX+Math.cos(angle)*wBase,VCY+Math.sin(angle)*wBase);vcCtx.lineTo(VCX+Math.cos(angle)*(wBase+(wave+d)*20),VCY+Math.sin(angle)*(wBase+(wave+d)*20));vcCtx.stroke();}}
 
-  /* ── Orb core ── */
-  const breathe   = 1 + (isListen ? 0.07 : 0.03) * Math.sin(t * (isListen ? 4 : 1.8));
-  const orbR      = 28 * breathe;
-  const intensity = isSpeak ? 1 : isListen ? 0.92 : isProc ? 0.85 : 0.7;
-
-  const glow = vcCtx.createRadialGradient(VCX, VCY, 0, VCX, VCY, orbR * 3);
-  glow.addColorStop(0, `rgba(237,174,73,${intensity * 0.18})`);
-  glow.addColorStop(1, 'rgba(237,174,73,0)');
-  vcCtx.beginPath(); vcCtx.arc(VCX, VCY, orbR * 3, 0, Math.PI * 2);
-  vcCtx.fillStyle = glow; vcCtx.fill();
-
-  const grad = vcCtx.createRadialGradient(VCX - orbR*0.28, VCY - orbR*0.28, 0, VCX, VCY, orbR);
-  grad.addColorStop(0,    `rgba(255,225,150,${intensity})`);
-  grad.addColorStop(0.45, `rgba(237,174,73,${intensity*0.9})`);
-  grad.addColorStop(1,    `rgba(160,90,20,${intensity*0.65})`);
-  vcCtx.beginPath(); vcCtx.arc(VCX, VCY, orbR, 0, Math.PI * 2);
-  vcCtx.fillStyle = grad; vcCtx.fill();
-
-  const hi = vcCtx.createRadialGradient(VCX - orbR*0.25, VCY - orbR*0.3, 0, VCX, VCY, orbR*0.6);
-  hi.addColorStop(0, `rgba(255,245,210,${intensity*0.55})`);
-  hi.addColorStop(1, 'rgba(255,245,210,0)');
-  vcCtx.beginPath(); vcCtx.arc(VCX, VCY, orbR, 0, Math.PI * 2);
-  vcCtx.fillStyle = hi; vcCtx.fill();
+  const breathe=1+(isListen?.07:.03)*Math.sin(t*(isListen?4:1.8)),orbR=28*breathe,intensity=isSpeak?1:isListen?.92:isProc?.85:.7;
+  const glow=vcCtx.createRadialGradient(VCX,VCY,0,VCX,VCY,orbR*3);glow.addColorStop(0,`rgba(237,174,73,${intensity*.18})`);glow.addColorStop(1,'rgba(237,174,73,0)');vcCtx.beginPath();vcCtx.arc(VCX,VCY,orbR*3,0,Math.PI*2);vcCtx.fillStyle=glow;vcCtx.fill();
+  const grad=vcCtx.createRadialGradient(VCX-orbR*.28,VCY-orbR*.28,0,VCX,VCY,orbR);grad.addColorStop(0,`rgba(255,225,150,${intensity})`);grad.addColorStop(.45,`rgba(237,174,73,${intensity*.9})`);grad.addColorStop(1,`rgba(160,90,20,${intensity*.65})`);vcCtx.beginPath();vcCtx.arc(VCX,VCY,orbR,0,Math.PI*2);vcCtx.fillStyle=grad;vcCtx.fill();
 }
 
-/* ── Timer ── */
-function timerTick() {
-  vcSeconds++;
-  const m = String(Math.floor(vcSeconds / 60)).padStart(2,'0');
-  const s = String(vcSeconds % 60).padStart(2,'0');
-  vcTimer.textContent = `${m}:${s}`;
-  vcTimer.classList.add('active');
-}
+function timerTick(){vcSeconds++;const m=String(Math.floor(vcSeconds/60)).padStart(2,'0'),s=String(vcSeconds%60).padStart(2,'0');vcTimer.textContent=`${m}:${s}`;vcTimer.classList.add('active');}
 
-/* ── Add line to call transcript ── */
-function vcAddLine(role, text) {
-  const d = document.createElement('div');
-  d.className = `vc-tline ${role}`;
-  d.innerHTML = `<span class="vc-who">${role === 'user' ? 'You' : 'Oracle'}:</span><span>${esc(text)}</span>`;
-  vcTranscript.appendChild(d);
-  vcTranscript.scrollTop = vcTranscript.scrollHeight;
-}
+function vcAddLine(role,text){const d=document.createElement('div');d.className=`vc-tline ${role}`;d.innerHTML=`<span class="vc-who">${role==='user'?'You':'Oracle'}:</span><span>${esc(text)}</span>`;vcTranscript.appendChild(d);vcTranscript.scrollTop=vcTranscript.scrollHeight;}
 
-/* ── Audio init ── */
-async function vcInitAudio() {
-  if (vcAudioCtx) return true;
-  try {
-    vcStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-    vcAudioCtx = new AudioContext();
-    vcAnalyser = vcAudioCtx.createAnalyser();
-    vcAnalyser.fftSize = 128; vcAnalyser.smoothingTimeConstant = 0.78;
-    vcAudioCtx.createMediaStreamSource(vcStream).connect(vcAnalyser);
-    return true;
-  } catch(e) {
-    vcAddLine('ai', '⚠ Microphone access denied. Allow mic permissions and try again.');
-    return false;
-  }
-}
+async function vcInitAudio(){if(vcAudioCtx)return true;try{vcStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});vcAudioCtx=new AudioContext();vcAnalyser=vcAudioCtx.createAnalyser();vcAnalyser.fftSize=128;vcAnalyser.smoothingTimeConstant=.78;vcAudioCtx.createMediaStreamSource(vcStream).connect(vcAnalyser);return true;}catch(e){vcAddLine('ai','⚠ Microphone access denied.');return false;}}
 
-/* ── Speech Recognition for call ── */
-function vcBuildRecognition() {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) return null;
-  const r = new SR(); r.continuous = false; r.interimResults = true; r.lang = 'en-US';
+function vcBuildRecognition(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return null;const r=new SR();r.continuous=false;r.interimResults=true;r.lang='en-US';let interim='';
+r.onresult=e=>{let f='',i='';for(let j=e.resultIndex;j<e.results.length;j++){e.results[j].isFinal?(f+=e.results[j][0].transcript):(i+=e.results[j][0].transcript);}interim=(f||i).trim();};
+r.onend=async()=>{const q=interim;interim='';if(!q||!vcOpen){if(vcOpen)setVcCallState('listening');return;}vcAddLine('user',q);setVcCallState('processing');await sleep(400+Math.random()*350);const response=pick(q);const clean=response.replace(/\*\*(.+?)\*\*/g,'$1').replace(/`([^`]+)`/g,'$1').replace(/[📎◆◈🚀🐛👋🙌]/g,'').replace(/^---$/gm,'').replace(/\n/g,' ').trim().slice(0,200)+(response.length>200?'…':'');vcAddLine('ai',clean);setVcCallState('speaking');sendMessage(q);if(voiceEnabled){const rawClean=response.replace(/\*\*(.+?)\*\*/g,'$1').replace(/`([^`]+)`/g,'$1').replace(/[📎◆◈🚀🐛👋🙌]/g,'').replace(/\s{2,}/g,' ').trim();synth.cancel();const utt=new SpeechSynthesisUtterance(rawClean.slice(0,500));utt.lang='en-US';utt.rate=1.05;const voices=synth.getVoices();const best=voices.find(v=>/Natural|Neural/i.test(v.name)&&v.lang.startsWith('en'))||voices.find(v=>!v.localService&&v.lang==='en-US')||voices.find(v=>v.lang?.startsWith('en-US'));if(best)utt.voice=best;utt.onend=utt.onerror=()=>{if(vcOpen){setVcCallState('listening');vcStartListening();}};synth.speak(utt);}else{await sleep(1500);if(vcOpen){setVcCallState('listening');vcStartListening();}}};
+r.onerror=e=>{if(e.error!=='no-speech'&&vcOpen)vcAddLine('ai',`⚠ ${e.error}`);if(vcOpen)setVcCallState('listening');};
+return r;}
 
-  let interimText = '';
-  r.onresult = e => {
-    let final='', interim='';
-    for (let i = e.resultIndex; i < e.results.length; i++) {
-      e.results[i].isFinal ? (final+=e.results[i][0].transcript) : (interim+=e.results[i][0].transcript);
-    }
-    interimText = (final || interim).trim();
-  };
+function vcStartListening(){if(!vcOpen||vcMuted)return;if(!vcRecognition)vcRecognition=vcBuildRecognition();if(!vcRecognition){vcAddLine('ai','⚠ Speech recognition requires Chrome or Edge.');return;}try{vcRecognition.start();}catch(_){}}
 
-  r.onend = async () => {
-    const q = interimText; interimText = '';
-    if (!q || !vcOpen) { if (vcOpen) setVcCallState('listening'); return; }
+async function openCall(){if(vcOpen)return;vcOpen=true;vcBackdrop.classList.add('open');vcPopup.classList.add('open');voiceFab.classList.add('active');vcTranscript.innerHTML='';vcAddLine('ai','Connected. Ask me anything.');vcSeconds=0;vcTimer.textContent='00:00';vcTimer.classList.remove('active');vcTimerInt=setInterval(timerTick,1000);setVcCallState('listening');vcDraw();const ok=await vcInitAudio();if(!ok){setVcCallState('idle');return;}if(!window.SpeechRecognition&&!window.webkitSpeechRecognition){vcAddLine('ai','⚠ Speech recognition needs Chrome or Edge.');setVcCallState('idle');return;}vcStartListening();}
 
-    vcLastQ = q;
-    vcAddLine('user', q);
-    setVcCallState('processing');
+function closeCall(){if(!vcOpen)return;vcOpen=false;try{vcRecognition?.stop();}catch(_){}vcRecognition=null;synth?.cancel();isSpeaking=false;clearInterval(vcTimerInt);cancelAnimationFrame(vcRaf);vcRaf=null;vcPopup.classList.remove('open');vcBackdrop.classList.remove('open');voiceFab.classList.remove('active');setVcCallState('idle');}
 
-    await sleep(500 + Math.random() * 400);
-    const response = pick(q);
-    vcLastA = response;
+endCallBtn.addEventListener('click',closeCall);
+vcBackdrop.addEventListener('click',e=>{if(e.target===vcBackdrop)closeCall();});
+vcMuteBtn.addEventListener('click',()=>{vcMuted=!vcMuted;vcMuteBtn.classList.toggle('on',vcMuted);if(vcMuted){try{vcRecognition?.stop();}catch(_){}}else if(vcCallState==='listening')vcStartListening();});
+vcSpeakerBtn.addEventListener('click',()=>{voiceEnabled=!voiceEnabled;vcSpeakerBtn.classList.toggle('on',voiceEnabled);voiceBtn.classList.toggle('voice-on',voiceEnabled);if(!voiceEnabled)synth?.cancel();});
+micBtn.addEventListener('click',openCall);
+voiceFab.addEventListener('click',openCall);
+document.addEventListener('keydown',e=>{if(e.code==='Escape'&&vcOpen){e.preventDefault();closeCall();}});
 
-    // Clean response for transcript display
-    const clean = response
-      .replace(/\*\*(.+?)\*\*/g,'$1').replace(/`([^`]+)`/g,'$1')
-      .replace(/^---$/gm,'').replace(/^> /gm,'').replace(/\n/g,' ').trim()
-      .slice(0, 200) + (response.length > 200 ? '…' : '');
-    vcAddLine('ai', clean);
-
-    setVcCallState('speaking');
-    // Also push to main chat
-    sendMessage(q);
-
-    // Speak response
-    if (voiceEnabled) {
-      const rawClean = response
-        .replace(/\*\*(.+?)\*\*/g,'$1').replace(/`([^`]+)`/g,'$1')
-        .replace(/^---$/gm,'.').replace(/^> /gm,'')
-        .replace(/\[ \]/g,'').replace(/[→•]/g,' ').replace(/\s{2,}/g,' ').trim();
-      synth.cancel();
-      const utt = new SpeechSynthesisUtterance(rawClean);
-      utt.lang='en-US'; utt.rate=1.05; utt.pitch=1; utt.volume=1;
-      const voices = synth.getVoices();
-      const best = voices.find(v => /Natural|Neural/i.test(v.name) && v.lang.startsWith('en'))
-                || voices.find(v => !v.localService && v.lang==='en-US')
-                || voices.find(v => v.lang?.startsWith('en-US'));
-      if (best) utt.voice = best;
-      utt.onend = utt.onerror = () => { if (vcOpen) { setVcCallState('listening'); vcStartListening(); } };
-      synth.speak(utt);
-    } else {
-      await sleep(1500);
-      if (vcOpen) { setVcCallState('listening'); vcStartListening(); }
-    }
-  };
-
-  r.onerror = e => {
-    if (e.error !== 'no-speech' && vcOpen) vcAddLine('ai', `⚠ ${e.error}`);
-    if (vcOpen) { setVcCallState('listening'); }
-  };
-  return r;
-}
-
-function vcStartListening() {
-  if (!vcOpen || vcMuted) return;
-  if (!vcRecognition) vcRecognition = vcBuildRecognition();
-  if (!vcRecognition) { vcAddLine('ai', '⚠ Speech recognition requires Chrome or Edge.'); return; }
-  try { vcRecognition.start(); } catch(_) {}
-}
-
-/* ── Open / Close call ── */
-async function openCall() {
-  if (vcOpen) return;
-  vcOpen = true;
-  vcBackdrop.classList.add('open');
-  vcPopup.classList.add('open');
-  voiceFab.classList.add('active');
-
-  // Reset transcript
-  vcTranscript.innerHTML = '';
-  vcAddLine('ai', 'Connected. Ask me anything about your codebase.');
-
-  // Reset timer
-  vcSeconds = 0; vcTimer.textContent = '00:00'; vcTimer.classList.remove('active');
-  vcTimerInt = setInterval(timerTick, 1000);
-
-  // Start canvas
-  setVcCallState('listening');
-  vcDraw();
-
-  // Init audio + start listening
-  const ok = await vcInitAudio();
-  if (!ok) { setVcCallState('idle'); return; }
-  if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
-    vcAddLine('ai', '⚠ Speech recognition needs Chrome or Edge. Type below instead.');
-    setVcCallState('idle'); return;
-  }
-  vcStartListening();
-}
-
-function closeCall() {
-  if (!vcOpen) return;
-  vcOpen = false;
-
-  // Stop recognition
-  try { vcRecognition?.stop(); } catch(_) {}
-  vcRecognition = null;
-
-  // Stop TTS
-  synth?.cancel();
-  isSpeaking = false;
-
-  // Stop timer
-  clearInterval(vcTimerInt);
-
-  // Stop canvas
-  cancelAnimationFrame(vcRaf); vcRaf = null;
-
-  // Animate out
-  vcPopup.classList.remove('open');
-  vcBackdrop.classList.remove('open');
-  voiceFab.classList.remove('active');
-
-  setVcCallState('idle');
-}
-
-/* ── Controls ── */
-endCallBtn.addEventListener('click', closeCall);
-vcBackdrop.addEventListener('click', e => { if (e.target === vcBackdrop) closeCall(); });
-
-vcMuteBtn.addEventListener('click', () => {
-  vcMuted = !vcMuted;
-  vcMuteBtn.classList.toggle('on', vcMuted);
-  vcMuteBtn.innerHTML = vcMuted ? micIconOff : micIconOn;
-  if (vcMuted) { try { vcRecognition?.stop(); } catch(_) {} }
-  else if (vcCallState === 'listening') vcStartListening();
-});
-
-vcSpeakerBtn.addEventListener('click', () => {
-  voiceEnabled = !voiceEnabled;
-  vcSpeakerBtn.classList.toggle('on', voiceEnabled);
-  voiceBtn.classList.toggle('voice-on', voiceEnabled);
-  if (!voiceEnabled) synth?.cancel();
-});
-
-/* ── Trigger ── */
-micBtn.addEventListener('click', openCall);
-voiceFab.addEventListener('click', openCall);
-
-/* ── Keyboard shortcut ── */
-document.addEventListener('keydown', e => {
-  if (e.code === 'Escape' && vcOpen) { e.preventDefault(); closeCall(); }
-});
-
-/* ── Boot ── */
+/* Boot */
 renderEmpty();
-if (synth) synth.getVoices();
-synth?.addEventListener?.('voiceschanged', () => {});
+if(synth)synth.getVoices();
 </script>

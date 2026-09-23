@@ -170,10 +170,10 @@ button:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
 .input-hint{font-size:11px;color:var(--t3);text-align:center;margin-top:5px}
 
 /* ══ VOICE FAB ══ */
-.voice-fab{position:fixed;bottom:30px;z-index:150;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--ac2));color:#000;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(237,174,73,.45);transition:transform .2s,box-shadow .2s;animation:fabB 3.5s ease-in-out infinite;left:calc(50% - 260px)}
-.voice-fab:hover{transform:scale(1.1) translateX(-2px);box-shadow:0 6px 32px rgba(237,174,73,.65);animation:none}
+.voice-fab{position:fixed;bottom:28px;left:24px;z-index:150;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--ac2));color:#000;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(237,174,73,.5);transition:transform .2s,box-shadow .2s;animation:fabB 3.5s ease-in-out infinite}
+.voice-fab:hover{transform:scale(1.1);box-shadow:0 6px 32px rgba(237,174,73,.7);animation:none}
 .voice-fab.active{background:linear-gradient(135deg,#4ADE80,#22C55E);animation:none}
-@keyframes fabB{0%,100%{box-shadow:0 4px 20px rgba(237,174,73,.45)}50%{box-shadow:0 4px 36px rgba(237,174,73,.7)}}
+@keyframes fabB{0%,100%{box-shadow:0 4px 20px rgba(237,174,73,.5)}50%{box-shadow:0 4px 36px rgba(237,174,73,.75)}}
 
 /* ══ VC POPUP ══ */
 .vc-bd{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0);backdrop-filter:blur(0px);transition:background .35s,backdrop-filter .35s;pointer-events:none}
@@ -224,7 +224,7 @@ button:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
   .gc.pc{border-radius:var(--r) var(--r) 0 0 !important}
 
   .av-info{left:50%;transform:translateX(-50%);bottom:calc(58vh + 16px)}
-  .voice-fab{left:calc(50% - 65px);bottom:calc(58vh + 16px)}
+  .voice-fab{left:24px;bottom:calc(58vh + 20px)}
 
   #orbCanvas{left:50%;top:45%}
   #avLoad{left:50%;top:45%}
@@ -415,6 +415,7 @@ const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true 
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.shadowMap.enabled = true;
+renderer.setClearColor(0x000000, 0);
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 100);
@@ -619,8 +620,275 @@ function personality(text){
 /* ══ AGENTS ══ */
 const AGENTS={
   oracle:{name:'Why Oracle',sub:'IT Knowledge Base',badge:'Oracle',placeholder:'Ask about your codebase, or upload a doc…',chips:['What does this document cover?','Why is auth built this way?','Explain the database choice','Tell me a developer joke'],r:{auth:`Authentication lives in \`src/auth/middleware.py\`. The system uses **JWT tokens with a 1-hour expiry**. Refresh tokens are stored in **Redis** — a deliberate call.\n\n**Why Redis?**\nFast O(1) revocation: deleting a key is instant versus a Postgres query on every request. The latency difference matters at scale.`,postgres:`**Postgres was chosen over MongoDB** for two reasons:\n\n1. **Relational data model** — the project has natural joins and foreign-key constraints\n2. **ACID transactions** — billing events need atomicity that MongoDB can't guarantee\n\nMongoDB's aggregation pipeline added 200–400ms overhead per query — not acceptable.`,retry:`- **Auth service:** no retry — failed auth returns immediately (prevents credential-stuffing)\n- **External APIs:** exponential backoff, max 3 retries, starting at 500ms\n- **DB connections:** connection pool with 5-second timeout before failing over`,default:`I'm ready to help with your codebase.\n\n**Tip:** Upload a document (📎) and I'll give you answers grounded in your actual architecture.\n\nOr ask me:\n- "What does this document cover?"\n- "Where does auth happen?"\n- "Tell me a joke" 😄`}},
-  ticket:{name:'Ticket Builder',sub:'Notes → Structured Tickets',badge:'Tickets',placeholder:'Paste meeting notes, a bug report, or upload a spec…',chips:['Convert standup notes to tickets','Triage: login fails after reset','Break down this feature request','What tickets are in this doc?'],r:{bug:`**Bug: Login fails after password reset**\n\n**Severity:** High — users are fully locked out\n\n**Steps to reproduce:**\n1. /forgot-password → submit valid email\n2. Click reset link → enter new password\n3. Attempt login → "invalid credentials"\n\n**Acceptance criteria:**\n- [ ] Login succeeds immediately after reset\n- [ ] Existing sessions invalidated on password change\n- [ ] Redis refresh tokens cleared on reset\n- [ ] Regression test added\n\n**Suspected component:** \`src/auth/middleware.py\` · **Owner:** Auth team`,standup:`Converting to **3 sprint tickets**:\n\n---\n\n**Feature: Email validation on signup** — Medium · Frontend\n\n---\n\n**Chore: Redis 6 → 7 migration** — High · Platform\n\n---\n\n**Bug: Dashboard load regression** — High · Data team`,default:`Paste in meeting notes, a bug report, or feature request — or **upload a spec document** (📎) and I'll extract tickets from it.\n\nI apply a severity rubric, flag missing info, and structure each item with acceptance criteria and a suggested owner.`}}
+  ticket:{name:'Ticket Builder',sub:'Notes → Structured Tickets',badge:'Tickets',placeholder:'Describe a feature, bug, or "set up X for N devs"…',chips:['Set up Spring Boot for 5 devs + 5 DS','Bug: login fails after password reset','Feature: add CSV export to reports','Break down: OAuth2 SSO integration']}
 };
+
+/* ══ DYNAMIC TICKET BUILDER ══ */
+function buildTickets(text){
+  const lo=text.toLowerCase();
+  const tech={
+    springboot:/spring\s*boot/i.test(text), java:/\bjava\b/i.test(text),
+    python:/\bpython\b/i.test(text), react:/\breact\b/i.test(text),
+    node:/\bnode\.?js\b/i.test(text), postgres:/postgres/i.test(text),
+    mysql:/\bmysql\b/i.test(text), mongo:/mongo/i.test(text),
+    docker:/\bdocker\b/i.test(text), redis:/\bredis\b/i.test(text),
+    auth:/auth|jwt|oauth|keycloak/i.test(text),
+    ml:/machine.?learning|data.?sci|sklearn|tensorflow|pytorch|jupyter/i.test(text),
+  };
+  const devMatch=text.match(/(\d+)\s*(?:developer|dev\b|engineer|backend|frontend)/i);
+  const dsMatch=text.match(/(\d+)\s*(?:data\s*sci|ds\b|data.?engineer|analyst)/i);
+  const devCount=devMatch?parseInt(devMatch[1]):null;
+  const dsCount=dsMatch?parseInt(dsMatch[1]):null;
+  const isSetup=/set\s*up|scaffold|bootstrap|initialise|initialize|start|new project|greenfield/i.test(text);
+  const isBug=/\bbug\b|fix:|broken|fail|crash|error|not working|regression/i.test(text);
+  const isMigration=/migrat|upgrade.*version|redis \d|postgres \d+|java \d+/i.test(text);
+  const isFeature=/\bfeature\b|add |implement |build |create.*for/i.test(text)&&!isSetup;
+
+  if(isSetup){
+    const stack=tech.springboot?'Spring Boot':tech.node?'Node.js':tech.python?'Python/FastAPI':'Backend';
+    const db=tech.postgres?'PostgreSQL':tech.mysql?'MySQL':tech.mongo?'MongoDB':'PostgreSQL';
+    const teamLine=devCount&&dsCount?` for **${devCount} developers** and **${dsCount} data scientists**`:devCount?` for **${devCount} developers**`:'';
+    const tix=[];let n=1;
+    const T=(title,pri,type,pts,owner,body)=>`**TICKET-${String(n++).padStart(3,'0')}: ${title}**\n> Priority: **${pri}** · Type: ${type} · Points: ${pts} · Owner: ${owner}\n\n${body}`;
+
+    tix.push(T(`[Setup] ${stack} project scaffolding`,'High','Chore',3,'Lead Developer',
+`Initialise the project skeleton${teamLine}.
+
+**Acceptance criteria:**
+- [ ] Project created with ${tech.springboot?'Spring Initializr (Maven/Gradle)':tech.node?'npm init + folder structure':'pyproject.toml / setup.py'}
+- [ ] Layered folder structure: \`controller / service / repository / model / config\`
+- [ ] \`.gitignore\`, \`README.md\`, and \`CONTRIBUTING.md\` committed to \`main\`
+- [ ] Project compiles and starts with \`${tech.springboot?'./mvnw spring-boot:run':tech.node?'npm start':'uvicorn main:app'}\` with no errors
+- [ ] Branch protection rules enabled on \`main\` (PR required, 1 review minimum)`));
+
+    tix.push(T('[Setup] Environment configuration & profiles','High','Chore',2,'Lead Developer',
+`Configure environment-specific settings for dev, staging, and prod${teamLine}.
+
+**Acceptance criteria:**
+- [ ] \`.env.example\` documents every required variable with descriptions
+- [ ] ${tech.springboot?'`application.yml` with `spring.profiles.active` for dev/staging/prod':'Config loaded from environment at startup'}
+- [ ] Secrets excluded from git (\`.env\` in \`.gitignore\`, confirmed via \`git status\`)
+- [ ] Setup works on Windows, macOS, and Linux
+- [ ] Each of the ${devCount?devCount+' developers':'team members'} can run locally within 15 minutes`));
+
+    tix.push(T(`[Setup] ${db} schema & JPA data layer`,'High','Feature',5,'Backend Developer',
+`Design and implement the initial database schema${tech.springboot?' with JPA/Hibernate':''}.
+
+**Acceptance criteria:**
+- [ ] Entity classes created with proper annotations (\`@Entity\`, \`@Table\`, \`@Column\`)
+- [ ] Relationships mapped: \`@OneToMany\`, \`@ManyToOne\` with lazy loading defaults
+- [ ] DB migrations managed via ${tech.springboot?'Flyway':'Alembic'} — versioned, repeatable
+- [ ] Connection pool configured: min 2, max 20, timeout 30s
+- [ ] Seed script populates realistic dev data
+- [ ] Schema diagram included in \`/docs\``));
+
+    tix.push(T('[Setup] REST API layer & OpenAPI documentation','High','Feature',5,'Backend Developer',
+`Scaffold the base API layer with interactive documentation.
+
+**Acceptance criteria:**
+- [ ] Base CRUD endpoints for core entities (GET, POST, PUT, DELETE)
+- [ ] OpenAPI/Swagger UI live at \`/api-docs\` or \`/swagger-ui.html\`
+- [ ] Global exception handler: returns \`{status, message, errors[], timestamp}\`
+- [ ] Health check: \`GET /actuator/health\` returns \`{"status":"UP"}\`
+- [ ] Request validation with field-level error messages
+- [ ] All endpoints return consistent JSON envelope`));
+
+    tix.push(T('[Setup] Authentication & role-based access control','High','Feature',5,'Backend Developer',
+`Implement JWT-based auth${devCount&&dsCount?` with roles for developers and data scientists`:''}.
+
+**Acceptance criteria:**
+- [ ] \`POST /auth/login\` → returns JWT access token + refresh token
+- [ ] \`POST /auth/refresh\` → issues new access token
+- [ ] Roles defined: \`ROLE_DEVELOPER\`${dsCount?', `ROLE_DATA_SCIENTIST`':''}, \`ROLE_ADMIN\`
+- [ ] BCrypt password hashing (min cost factor 12)
+- [ ] JWT expiry: access 1h, refresh 7d
+- [ ] Unauthorised requests return \`401\`, forbidden \`403\` (not 404)`));
+
+    tix.push(T('[Setup] CI/CD pipeline','Medium','Chore',3,'DevOps / Lead Developer',
+`Automate build, test, and deployment pipeline.
+
+**Acceptance criteria:**
+- [ ] Pipeline triggers on every PR and push to \`main\`
+- [ ] Stage 1 — Build + unit tests (PR blocked if any fail)
+- [ ] Stage 2 — Static analysis (SonarQube / Checkstyle / ESLint)
+- [ ] Stage 3 — ${tech.docker?'Docker image built and pushed to registry':'Artefact packaged'}
+- [ ] Stage 4 — Auto-deploy to staging on merge to \`main\`
+- [ ] Slack / email notification on failure`));
+
+    if(tech.docker){
+      tix.push(T('[Setup] Docker & local dev stack','Medium','Chore',3,'DevOps',
+`Containerise the application for reproducible local and cloud environments.
+
+**Acceptance criteria:**
+- [ ] Multi-stage \`Dockerfile\`: build stage + minimal runtime image
+- [ ] \`docker-compose.yml\`: app + ${db}${tech.redis?' + Redis':''} + any dependencies
+- [ ] \`docker compose up --build\` gives a working stack in < 3 minutes
+- [ ] Final image < 300MB
+- [ ] Healthcheck defined in \`Dockerfile\`
+- [ ] Instructions in README for all ${devCount||'team'} members`));
+    }
+
+    if(dsCount){
+      tix.push(T('[Setup] Data Science API integration endpoints','Medium','Feature',5,'Backend Dev + Data Science Lead',
+`Expose REST endpoints for ${stack} ↔ Data Science pipeline integration for **${dsCount} DS team members**.
+
+**Acceptance criteria:**
+- [ ] \`POST /api/v1/predict\` — accepts JSON payload, returns model predictions
+- [ ] \`GET /api/v1/models\` — lists registered models with version metadata
+- [ ] \`POST /api/v1/models/register\` — DS team can register a new model version
+- [ ] Input schema validated; returns \`422\` with field errors on bad input
+- [ ] Python SDK example in \`/notebooks/api_example.ipynb\`
+- [ ] Contract published in OpenAPI spec`));
+
+      tix.push(T('[Setup] Data Science Python environment','Medium','Chore',2,'Data Science Lead',
+`Set up the Python environment for **${dsCount} data scientists** to work alongside the ${stack} backend.
+
+**Acceptance criteria:**
+- [ ] \`requirements.txt\` or \`environment.yml\` with pinned versions
+- [ ] Jupyter notebook: loads data from DB (read-only credentials), calls backend API
+- [ ] \`/notebooks\` folder committed with example workflow
+- [ ] DB read-only user created and credentials distributed securely
+- [ ] Setup instructions tested on a clean machine by a second DS member`));
+    }
+
+    tix.push(T('[Setup] Developer onboarding documentation','Low','Docs',2,'Lead Developer',
+`Write onboarding docs so any new team member is productive within 1 hour.
+
+**Acceptance criteria:**
+- [ ] Prerequisites: JDK ${tech.springboot?'21':tech.node?'20':''}, Docker, IDE, extensions listed
+- [ ] Step-by-step: clone → configure \`.env\` → run → verify at \`/actuator/health\`
+- [ ] Branching strategy documented (Gitflow / trunk-based)
+- [ ] Architecture diagram (C4 Level 1 or 2) in \`/docs\`
+- [ ] Reviewed by one developer who wasn't involved in setup`));
+
+    const total=n-1;
+    return `Generated **${total} tickets** for ${stack} project setup${teamLine}:\n\n---\n\n`+tix.join('\n\n---\n\n');
+  }
+
+  if(isBug){
+    const sev=/crash|down|outage|block|data.?loss/.test(lo)?'Critical':/login|auth|payment|checkout/.test(lo)?'High':'Medium';
+    const bugTitle=text.replace(/^(bug|fix|triage)[:\s]*/i,'').replace(/\.$/, '').trim().slice(0,80)||'Application defect';
+    return `**Bug Report: ${bugTitle}**
+
+> Priority: **${sev}** · Type: Bug · Points: TBD after triage · Owner: Assigned after investigation
+
+---
+
+**Description:**
+${text.trim()}
+
+---
+
+**Steps to reproduce:**
+- [ ] 1. [Describe the starting state / URL]
+- [ ] 2. [Action that triggers the bug]
+- [ ] 3. [What happens vs what should happen]
+
+**Environment:** \`[ ] Dev  [ ] Staging  [ ] Prod\` — version: ______
+
+**Logs / error message:**
+\`\`\`
+[paste stack trace or error here]
+\`\`\`
+
+---
+
+**Acceptance criteria:**
+- [ ] Bug cannot be reproduced following the steps above
+- [ ] Root cause documented in ticket comments
+- [ ] Automated test added to prevent regression
+- [ ] Fix deployed and verified in same environment the bug was found
+
+> ⚠ **Flagged assumptions:** Steps to reproduce need confirmation. Assign a dev for initial triage before committing to a sprint.`;
+  }
+
+  if(isMigration){
+    const what=tech.redis?'Redis':tech.postgres?'PostgreSQL':tech.java?'Java':'Dependency';
+    return `**Migration plan: ${what} upgrade**
+
+> Priority: **High** · Type: Chore · Owner: Platform / DevOps
+
+---
+
+**TICKET-001: [Spike] Assess breaking changes**
+> Points: 3 · Owner: Senior Developer
+
+- [ ] Read full changelog between current and target version
+- [ ] Run \`grep\` across codebase for deprecated APIs
+- [ ] Document risk areas and required code changes
+- [ ] Estimate effort; create sub-tickets if > 5 points
+
+---
+
+**TICKET-002: [Chore] Update version & dependencies**
+> Points: 2 · Owner: DevOps / Lead Developer
+
+- [ ] Update version in \`docker-compose.yml\` / deployment manifests
+- [ ] Update client library version in build file
+- [ ] Run full test suite against new version — all green
+- [ ] Update \`.env.example\` if connection string format changed
+
+---
+
+**TICKET-003: [Test] Regression & load testing**
+> Points: 3 · Owner: QA / Developer
+
+- [ ] Full integration test suite passes against new version
+- [ ] Load test at 2× expected peak traffic — no degradation
+- [ ] Memory and CPU metrics stable under load
+- [ ] Rollback procedure documented and rehearsed before prod deploy`;
+  }
+
+  if(isFeature){
+    const featureTitle=text.replace(/^(build|add|implement|create|feature)[:\s]*/i,'').trim().slice(0,80)||'New feature';
+    return `**Feature breakdown: ${featureTitle}**
+
+> Provide more context for tighter tickets. This is a general breakdown to get you started.
+
+---
+
+**TICKET-001: [Spike] Requirements & design**
+> Priority: High · Points: 3 · Owner: Tech Lead
+
+- [ ] Acceptance criteria agreed with the stakeholder
+- [ ] API contract defined (request/response schema documented)
+- [ ] UI wireframe or mockup signed off (if applicable)
+- [ ] Dependencies, blockers, and out-of-scope items identified
+
+---
+
+**TICKET-002: [Feature] Backend implementation**
+> Priority: High · Points: 5–8 · Owner: Backend Developer
+
+- [ ] Business logic layer implemented and unit tested
+- [ ] API endpoint matches agreed contract
+- [ ] Error cases handled: validation, auth, not-found
+- [ ] Code reviewed by a peer and approved
+
+---
+
+**TICKET-003: [Feature] Frontend integration**
+> Priority: High · Points: 3–5 · Owner: Frontend Developer
+
+- [ ] UI built to match wireframe
+- [ ] API integration: handles loading, empty, and error states
+- [ ] Responsive at 375px, 768px, and 1280px
+- [ ] Keyboard navigable and screen-reader labelled
+
+---
+
+**TICKET-004: [QA] Acceptance testing**
+> Priority: Medium · Points: 2 · Owner: QA / Developer
+
+- [ ] All acceptance criteria verified by a reviewer
+- [ ] Edge cases covered: empty input, max length, concurrent requests
+- [ ] Passes on staging before production deploy
+
+> 💡 **Tip:** Paste the actual feature spec or upload a doc for more specific tickets.`;
+  }
+
+  return `I'll build detailed tickets from your description — try:\n\n- **"Set up a Spring Boot project for 5 developers and 5 data scientists"**\n- **"Bug: payment checkout crashes when user has no saved address"**\n- **"Feature: add CSV export to the admin reports page"**\n- **"Migration: upgrade Redis 6 to Redis 7"**\n\nOr **upload a spec document** (📎) and I'll extract tickets directly from it.`;
+}
 
 /* ══ STATE ══ */
 let agent='oracle',msgs=[],streaming=false,voiceOn=true,mainState='idle',theme='system';
@@ -687,7 +955,7 @@ function pick(text){
     if(results.length){const ex=results.map(r=>`**${r.heading}**\n${r.text.trim().slice(0,280)}${r.text.length>280?'…':''}`).join('\n\n---\n\n');return `From **${DocCtx.filename}**:\n\n${ex}\n\n> Based on your uploaded document. Ask a follow-up to dig deeper.`;}
     return `I didn't find a direct match in **${DocCtx.filename}** for that.\n\nTry "What does this document cover?" or rephrase your question. I can also answer general software development questions.`;
   }
-  if(agent==='ticket'){if(/bug|fail|error|crash|broken/.test(lo))return AGENTS.ticket.r.bug;if(/standup|sprint|meeting|notes|ticket|story|jira|linear/.test(lo))return AGENTS.ticket.r.standup;return AGENTS.ticket.r.default;}
+  if(agent==='ticket'){return buildTickets(text);}
   if(/auth|login|jwt|token|middleware/.test(lo))return AGENTS.oracle.r.auth;
   if(/postgres|mongo|database|db/.test(lo))return AGENTS.oracle.r.postgres;
   if(/retry|policy|backoff/.test(lo))return AGENTS.oracle.r.retry;
@@ -756,9 +1024,9 @@ $('themeBtn').addEventListener('click',()=>{const t=['system','dark','light'];th
 
 /* ══ CHAT PANEL TOGGLE ══ */
 const chatPanel=$('chatPanel');
+chatPanel.classList.remove('hide'); // always visible on load
 $('chatToggleBtn').addEventListener('click',()=>chatPanel.classList.toggle('hide'));
 $('panelCloseBtn').addEventListener('click',()=>chatPanel.classList.add('hide'));
-// Ensure panel is visible by default on desktop
 function updatePanelVisibility(){
   if(window.innerWidth>768)chatPanel.classList.remove('hide');
 }
@@ -794,6 +1062,8 @@ document.addEventListener('keydown',e=>{if(e.code==='Escape'&&vcOpen){e.preventD
 /* ══ BOOT ══ */
 if(synth)synth.getVoices();
 window._swimpleState='idle';
+// Hide loading spinner after 6s regardless of GLB status
+setTimeout(()=>{const l=document.getElementById('avLoad');if(l)l.style.display='none';},6000);
 window.addEventListener('load',autoGreet);
 </script>
 </body>

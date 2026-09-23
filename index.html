@@ -952,37 +952,56 @@ function bestVoice(){
 
 function speakFallback(raw){
   if(!synth)return;
+  const voices=synth.getVoices();
+  // Only allow voices explicitly tagged as English — never fall through to system default
+  const enVoice=voices.find(v=>/microsoft.*aria|aria.*neural/i.test(v.name))
+    ||voices.find(v=>/microsoft.*jenny|jenny.*neural/i.test(v.name))
+    ||voices.find(v=>/microsoft.*natural/i.test(v.name)&&/en[-_]/i.test(v.lang))
+    ||voices.find(v=>/google/i.test(v.name)&&v.lang==='en-US')
+    ||voices.find(v=>v.lang==='en-US')
+    ||voices.find(v=>/^en[-_]/i.test(v.lang));
+  if(!enVoice){console.warn('No English TTS voice found on this device — Groq TTS required.');return;}
   const clean=raw.replace(/\*\*(.+?)\*\*/g,'$1').replace(/`([^`]+)`/g,'$1').replace(/[→•📎◆◈🚀🐛👋🙌]/g,'').replace(/<br>/g,' ').replace(/\s{2,}/g,' ').trim();
   const utt=new SpeechSynthesisUtterance(clean.slice(0,600));
   utt.lang='en-US';utt.rate=0.97;utt.pitch=1;utt.volume=1;
-  const v=bestVoice();if(v)utt.voice=v;
+  utt.voice=enVoice;
   utt.onstart=markSpeaking;
   utt.onend=utt.onerror=()=>{setMainState('idle');messages.querySelectorAll('.m-av.speaking').forEach(a=>a.classList.remove('speaking'));};
   synth.speak(utt);
+}
+
+function setVoiceTag(label,color){
+  let tag=document.getElementById('voiceTag');
+  if(!tag){tag=document.createElement('span');tag.id='voiceTag';tag.style.cssText='font-family:var(--fd);font-size:7.5px;letter-spacing:.18em;padding:2px 8px;border-radius:100px;font-weight:700;margin-left:6px;transition:all .3s';document.querySelector('.logo-name').after(tag);}
+  tag.textContent=label;tag.style.background=color==='green'?'rgba(74,222,128,.15)':'rgba(237,174,73,.13)';tag.style.color=color==='green'?'#4ADE80':'var(--t2)';tag.style.border=`1px solid ${color==='green'?'rgba(74,222,128,.3)':'rgba(255,255,255,.10)'}`;
 }
 
 async function speakText(raw){
   if(!voiceOn)return;
   stopSpeaking();
   const clean=raw.replace(/\*\*(.+?)\*\*/g,'$1').replace(/`([^`]+)`/g,'$1').replace(/[→•📎◆◈🚀🐛👋🙌]/g,'').replace(/<br>/g,' ').replace(/\s{2,}/g,' ').trim();
-  // Only attempt Groq when served over HTTP (not file://)
+  // Try Groq Orpheus when served over HTTP
   if(location.protocol==='http:'||location.protocol==='https:'){
     try{
       markSpeaking();
       const res=await fetch('/api/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:clean,voice:GROQ_VOICE})});
-      if(!res.ok)throw new Error(`HTTP ${res.status}`);
+      if(!res.ok)throw new Error(`HTTP ${res.status}: ${await res.text()}`);
       const blob=await res.blob();
       const url=URL.createObjectURL(blob);
       const audio=new Audio(url);
       currentAudio=audio;
+      setVoiceTag('ORPHEUS','green');
       audio.onended=()=>{URL.revokeObjectURL(url);currentAudio=null;setMainState('idle');messages.querySelectorAll('.m-av.speaking').forEach(a=>a.classList.remove('speaking'));};
       audio.onerror=()=>{URL.revokeObjectURL(url);currentAudio=null;setMainState('idle');};
       await audio.play();
       return;
     }catch(e){
-      console.warn('Groq TTS unavailable, using browser voice:',e.message);
+      console.warn('Groq TTS failed — falling back to browser voice.',e.message);
+      setVoiceTag('BROWSER','amber');
       stopSpeaking();
     }
+  }else{
+    setVoiceTag('BROWSER','amber');
   }
   speakFallback(raw);
 }
